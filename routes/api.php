@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\StoreController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +32,11 @@ Route::group([
     Route::post('update/{user}', [UserController::class, 'updateProfile'])->missing(function(){
         return response()->json('user not found', 404);
     });
+
+    Route::get('/categories', [CategoryController::class, 'index']);
+    Route::get('/categories/{category}/stores', [CategoryController::class, 'showStores']);
+    Route::get('/categories/{categoryId}/stores/{storeId}/products', [StoreController::class, 'showProducts']);
+    Route::get('/categories/{categoryId}/stores/{storeId}/products/{productId}', [ProductController::class, 'show']);
 
 });
 
