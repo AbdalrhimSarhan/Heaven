@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\CartItemController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\UserController;
@@ -37,6 +39,12 @@ Route::group([
     Route::get('/categories/{category}/stores', [CategoryController::class, 'showStores']);
     Route::get('/categories/{categoryId}/stores/{storeId}/products', [StoreController::class, 'showProducts']);
     Route::get('/categories/{categoryId}/stores/{storeId}/products/{productId}', [ProductController::class, 'show']);
+
+    Route::post('/cart', [CartItemController::class, 'addToCart']);
+    Route::put('/cart/{cartItem}', [CartItemController::class, 'updateQuantitiyItem']);
+    Route::delete('/cart/{cartItem}', [CartItemController::class, 'destroy']);
+
+    Route::post('order',[OrderController::class, 'confirmOrder']);
 
 });
 

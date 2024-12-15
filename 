@@ -1,0 +1,30 @@
+
+I am add four route 1- to view all category 2- to view all stores from a category 3- to view all products from a store 4- to view the details about products
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# Date:      Thu Dec 12 12:32:13 2024 +0300
+#
+# On branch main
+# Your branch is up to date with 'origin/main'.
+#
+# Changes to be committed:
+#	new file:   app/Http/Controllers/CategoryController.php
+#	new file:   app/Http/Controllers/ProductController.php
+#	new file:   app/Http/Controllers/StoreController.php
+#	new file:   app/Http/Resources/ProductResource.php
+#	new file:   app/Http/Resources/StoreResource.php
+#	new file:   app/Models/Category.php
+#	new file:   app/Models/Product.php
+#	new file:   app/Models/Store.php
+#	new file:   database/factories/ProductFactory.php
+#	new file:   database/factories/StoreFactory.php
+#	new file:   database/migrations/2024_12_11_100000_create_categories_table.php
+#	new file:   database/migrations/2024_12_11_150416_create_stores_table.php
+#	new file:   database/migrations/2024_12_11_151527_create_products_table.php
+#	new file:   database/migrations/2024_12_11_153012_create_store_product_table.php
+#	new file:   database/seeders/CategorySeeder.php
+#	modified:   database/seeders/DatabaseSeeder.php
+#	modified:   routes/api.php
+#
