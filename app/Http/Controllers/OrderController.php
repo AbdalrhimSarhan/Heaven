@@ -12,7 +12,6 @@ class OrderController extends Controller
     public function confirmOrder()
     {
         $userId = auth()->id();
-
         // Check if there are items in the cart without an order_id
         $cartItems = Cart_item::where('user_id', $userId)->whereNull('order_id')->get();
 

@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 class CartItemController extends Controller
 {
     public function addToCart(CartStoreRequest $request){
+
         $product = $request->validated();
 
         $storeProduct = Store_product::findOrFail($product['store_product_id']);
@@ -24,14 +25,25 @@ class CartItemController extends Controller
 
         $storeProduct->decrement('quantity', $product['quantity']);
 
-        return ResponseHelper::jsonResponse(['this products it add to cart'=>$cartItem,
+        return ResponseHelper::jsonResponse(['the product is added to cart'=>$cartItem,
             'total_price' => $storeProduct->price * $product['quantity']
             ,], 'Item added to cart successfully');
     }
 
-    public function updateQuantitiyItem(CartStoreRequest $request)
+    public function updateQuantitiyItem(CartStoreRequest $request, $cartItemId)
     {
+        // Find the cart item
+        $cartItem = Cart_item::find($cartItemId);
 
+        // Update the quantity from validated data
+        $cartItem->quantity = $request->validated()['quantity'];
+        $cartItem->save();
+
+        // Return a success response using ResponseHelper
+        return ResponseHelper::jsonResponse([
+            'the product quantity is updated' => $cartItem,
+            'total_price' => $cartItem->quantity * $cartItem->storeProduct->price
+        ],'Quantity updated successfully', 200);
     }
 
     public function destroy($cartItemId)
@@ -59,8 +71,4 @@ class CartItemController extends Controller
             return ResponseHelper::jsonResponse(null, $e->getMessage(), 500, false);
         }
     }
-
-
-
-
 }

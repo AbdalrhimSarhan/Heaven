@@ -37,7 +37,7 @@ class UserController extends Controller
             }
             $user = User::create($data);
 
-        return ResponseHelper::jsonResponse(UserResource::make($user), 'login successfully', 200, true);
+        return ResponseHelper::jsonResponse(UserResource::make($user), 'registered successfully', 200, true);
 
     }
 
@@ -57,7 +57,7 @@ class UserController extends Controller
 
         $token = JWTAuth::fromUser($user);
 
-        return ResponseHelper::jsonResponse($token, 'login successfully', 200, true);
+        return ResponseHelper::jsonResponse($token, 'logged in successfully', 200, true);
     }
 
     public function updateProfile(UpdateProfile $request,User $user){
@@ -84,7 +84,7 @@ class UserController extends Controller
     {
         $user = auth()->user()->only('id','first_name','last_name','mobile','location','image');
 //        return response()->json(auth()->user());
-        return ResponseHelper::jsonResponse($user,auth()->user()->first_name.' '.auth()->user()->last_name.' profile');
+        return ResponseHelper::jsonResponse($user,auth()->user()->first_name.' '.auth()->user()->last_name.' profile',200,true);
     }
 
     /**
@@ -96,7 +96,7 @@ class UserController extends Controller
     {
         auth()->logout();
 
-        return ResponseHelper::jsonResponse(null,'logout successfully');
+        return ResponseHelper::jsonResponse(null,'loggedout successfully');
     }
 
     /**
