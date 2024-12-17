@@ -20,6 +20,19 @@ class Cart_item extends Model
     {
         return $this->belongsTo(Store_product::class, 'store_product_id', 'id');
     }
+    /**
+     * Relationship with the Order (belongsTo)
+     */
+    public function order()
+    {
+        return $this->belongsTo(Order::class, 'order_id');
+    }
 
-
+    /**
+     * Relationship with the User (belongsTo)
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

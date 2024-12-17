@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\ResponseHelper;
 use App\Http\Requests\CartStoreRequest;
+use App\Http\Requests\UpdateQuantityRequest;
 use App\Models\Cart_item;
 use App\Models\Store_product;
 use Illuminate\Http\Request;
@@ -30,20 +31,59 @@ class CartItemController extends Controller
             ,], 'Item added to cart successfully');
     }
 
-    public function updateQuantitiyItem(CartStoreRequest $request, $cartItemId)
+    public function updateQuantitiyItem(UpdateQuantityRequest $request, $cartItemId)
     {
-        // Find the cart item
+        $validQuantity = $request->validated();
+        // Find the cart item by ID
         $cartItem = Cart_item::find($cartItemId);
 
-        // Update the quantity from validated data
-        $cartItem->quantity = $request->validated()['quantity'];
+        if (!$cartItem) {
+            return ResponseHelper::jsonResponse([], 'Cart item not found', 404);
+        }
+
+        // Get the related store product
+        $storeProduct = $cartItem->store_product;
+
+        if (!$storeProduct) {
+            return ResponseHelper::jsonResponse([], 'Store product not found', 404);
+        }
+
+        // New and old quantity
+        $oldQuantity = $cartItem->quantity;
+        $newQuantity = $validQuantity['quantity'];
+        $quantityDifference = $newQuantity - $oldQuantity;
+
+        // Prevent invalid negative changes in stock
+        if ($quantityDifference < 0) {
+            $absoluteDifference = abs($quantityDifference);
+            $storeProduct->quantity += $absoluteDifference; // Return the extra stock to the store
+        } else {
+            // Ensure sufficient stock is available
+            if ($storeProduct->quantity < $quantityDifference) {
+                return ResponseHelper::jsonResponse([], 'Not enough stock available.', 400);
+            }
+            $storeProduct->quantity -= $quantityDifference; // Reduce the store stock
+        }
+
+        // Save the updated store product quantity
+        $storeProduct->save();
+
+        // Update the cart item's quantity
+        $cartItem->quantity = $newQuantity;
         $cartItem->save();
 
-        // Return a success response using ResponseHelper
+        // Return a success response
         return ResponseHelper::jsonResponse([
-            'the product quantity is updated' => $cartItem,
-            'total_price' => $cartItem->quantity * $cartItem->storeProduct->price
-        ],'Quantity updated successfully', 200);
+            'updated_cart_item' => [
+                'id' => $cartItem->id,
+                'product_name' => $storeProduct->product->name,
+                'quantity' => $cartItem->quantity,
+                'unit_price' => $storeProduct->price,
+                'total_price' => $cartItem->quantity * $storeProduct->price,
+            ],
+            'remaining_stock' => $storeProduct->quantity,
+        ], 'Quantity updated successfully', 200);
+
     }
 
     public function destroy($cartItemId)

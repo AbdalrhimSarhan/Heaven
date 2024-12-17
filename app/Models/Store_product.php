@@ -16,4 +16,20 @@ class Store_product extends Model
     {
         return $this->hasMany(Cart_item::class, 'store_product_id', 'id');
     }
+
+    /**
+     * Relationship with the Store (belongsTo)
+     */
+    public function store()
+    {
+        return $this->belongsTo(Store::class, 'store_id');
+    }
+
+    /**
+     * Relationship with the Product (belongsTo)
+     */
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id');
+    }
 }

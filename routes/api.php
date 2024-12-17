@@ -41,10 +41,11 @@ Route::group([
     Route::get('/categories/{categoryId}/stores/{storeId}/products/{productId}', [ProductController::class, 'show']);
 
     Route::post('/cart', [CartItemController::class, 'addToCart']);
-    Route::put('/cart/{cartItem}', [CartItemController::class, 'updateQuantitiyItem']);
+    Route::put('/cart/{cartItemId}', [CartItemController::class, 'updateQuantitiyItem']);
     Route::delete('/cart/{cartItem}', [CartItemController::class, 'destroy']);
 
     Route::post('order',[OrderController::class, 'confirmOrder']);
+    Route::get('/orders', [OrderController::class, 'getClientOrders']);
 
 });
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ResponseHelper;
+use App\Http\Resources\OrderResource;
 use App\Models\Cart_item;
 use App\Models\Order;
 use Illuminate\Http\Request;
@@ -32,6 +33,23 @@ class OrderController extends Controller
             'order_id' => $order->id,
         ]);
         return ResponseHelper::jsonResponse($order,'your order has been confirmed.');
+    }
 
+    public function getClientOrders()
+    {
+        // Fetch the user's orders with relations
+        $orders = Order::with(['Cart_items.store_product.product'])
+            ->where('user_id', auth()->id())
+            ->get();
+
+        // Check if the user has any orders
+        if ($orders->isEmpty()) {
+            return ResponseHelper::jsonResponse([], 'You have no orders yet.', 404);
+        }
+
+        // Return the orders using OrderResource
+        return ResponseHelper::jsonResponse([
+            'orders' => OrderResource::collection($orders),
+        ], 'Client orders retrieved successfully', 200);
     }
 }
