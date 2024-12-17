@@ -27,19 +27,24 @@ class UserController extends Controller
 
     public function register(Register $request)
     {
-            $data = $request->validated();
+        $data = $request->validated();
 
-            if ($request->hasFile('image')) {
-                // Store the image and add the path to the data array
-                $data['image'] = $request->file('image')->store('user_image');
-            } else {
-                $data['image'] = null;
-            }
-            $user = User::create($data);
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('user_image');
+        } else {
+            $data['image'] = null;
+        }
 
-        return ResponseHelper::jsonResponse(UserResource::make($user), 'login successfully', 200, true);
+        $user = User::create($data);
 
+        return ResponseHelper::jsonResponse(
+            UserResource::make($user),
+            'Registration successful',
+            200,
+            true
+        );
     }
+
 
 
     /**

@@ -40,36 +40,35 @@ class ProductController extends Controller
     public function show($categoryId, $storeId, $productId)
     {
         try {
-            // Fetch category
+            $language = request()->get('lang', 'en');
+
             $category = Category::where('id', $categoryId)->firstOrFail();
 
-            // Fetch store belonging to the category
             $store = $category->stores()->where('stores.id', $storeId)->firstOrFail();
 
-            // Fetch product belonging to the store
             $product = $store->products()->where('products.id', $productId)->firstOrFail();
 
-            // Fetch store_product_id from store_product table
+            // Get store_product ID from the pivot table
             $storeProductId = DB::table('store_product')
                 ->where('store_id', $storeId)
                 ->where('product_id', $productId)
-                ->value('id'); // Assuming the primary key in store_product is 'id'
+                ->value('id'); // Assuming 'id' is the primary key
 
             if (!$storeProductId) {
                 return ResponseHelper::jsonResponse(null, 'Product not found in this store', 404, false);
             }
 
-            // Add store_product_id to product resource
-            $response = ProductResource::make($product)->toArray(request());
+            $response = ProductResource::make($product)->additional(['lang' => $language])->toArray(request());
+
             $response['store_product_id'] = $storeProductId;
 
-            // Return the final response
             return ResponseHelper::jsonResponse($response, 'successfully');
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return ResponseHelper::jsonResponse(null, 'Resource not found', 404, false);
         }
     }
+
 
 
     /**

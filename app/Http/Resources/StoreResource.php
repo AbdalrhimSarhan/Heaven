@@ -14,14 +14,15 @@ class StoreResource extends JsonResource
      *
      * @return array<string, mixed>
      */
-    public function toArray(Request $request): array  // 'name','location','category_id','image'
+    public function toArray(Request $request): array
     {
+        $language = $this->additional['lang'] ?? 'en';
         $imageUrl = Storage::url($this->image);
         $data = [
-            'id' =>$this->id,
-            'name'=>$this->name,
-            'image'=>asset($imageUrl) ?? null,
-            'location'=>$this->location,
+            'id' => $this->id,
+            'name' => $language === 'ar' ? $this->name_ar : $this->name_en,
+            'location' => $language === 'ar' ? $this->location_ar : $this->location_en,
+            'image' => asset($imageUrl) ?? null,
         ];
         return $data;
     }

@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('stores', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
+            $table->string('name_en')->unique();
+            $table->string('name_ar')->unique();
             $table->foreignId('category_id')->constrained('categories');
             $table->string('image')->nullable();
-            $table->string('location');
+            $table->string('location_en');
+            $table->string('location_ar');
             $table->timestamps();
         });
     }

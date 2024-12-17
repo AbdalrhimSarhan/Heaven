@@ -13,17 +13,23 @@ class ProductResource extends JsonResource
      *
      * @return array<string, mixed>
      */
-    public function toArray(Request $request): array //    'name', 'description', 'image'
+    public function toArray(Request $request): array
     {
+        // Retrieve the 'lang' parameter passed as additional data
+        $language = $this->additional['lang'] ?? 'en';
+
+        $name = $language === 'ar' ? $this->name_ar : $this->name_en;
+        $description = $language === 'ar' ? $this->description_ar : $this->description_en;
+
         $imageUrl = Storage::url($this->image);
-        $data = [
-            'id'=>$this->id,
-            'name'=>$this->name,
-            'description'=>$this->description,
-            'image'=>asset($imageUrl) ?? null,
+
+        return [
+            'id' => $this->id,
+            'name' => $name,
+            'description' => $description,
+            'image' => asset($imageUrl) ?? null,
             'price' => $this->pivot->price, // Comes from store_product table
             'quantity' => $this->pivot->quantity, // Comes from store_product table
         ];
-        return $data;
     }
 }
