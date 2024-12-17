@@ -20,15 +20,21 @@ class StoreController extends Controller
         Store::where('id');
     }
 
-    public function showProducts($categoryId, $storeId)
+    public function showProducts(Request $request, $categoryId, $storeId)
     {
+        // Retrieve the 'lang' parameter from the request; default to 'en'
+        $language = $request->get('lang', 'en');
+
+        // Fetch category, store, and products
         $category = Category::where('id', $categoryId)->firstOrFail();
-
         $store = $category->stores()->where('id', $storeId)->firstOrFail();
-
         $products = $store->products;
 
-        return ResponseHelper::jsonResponse(ProductResource::collection($products), 'successfully');
+        // Return the products with the language parameter
+        return ResponseHelper::jsonResponse(
+            ProductResource::collection($products)->additional(['lang' => $language]),
+            'successfully'
+        );
     }
 
 }
