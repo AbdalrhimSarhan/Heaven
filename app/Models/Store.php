@@ -9,9 +9,12 @@ class Store extends Model
 {
     use HasFactory;
     protected $fillable= [
-        'name','location','image','category_id'
+        'name_ar',    // Arabic name
+        'name_en',    // English name
+        'location_ar', // Arabic location
+        'location_en', // English location
+        'image','category_id'
     ];
-
 //    public function getRouteKeyName()
 //    {
 //        return 'name'; // Use the 'name' column for route model binding
