@@ -41,6 +41,7 @@ Route::group([
     Route::get('/categories/{categoryId}/stores/{storeId}/products/{productId}', [ProductController::class, 'show']);
 
     Route::post('/cart', [CartItemController::class, 'addToCart']);
+    Route::get('/show/cart', [CartItemController::class, 'getCartItems']);
     Route::put('/cart/{cartItemId}', [CartItemController::class, 'updateQuantitiyItem']);
     Route::delete('/cart/{cartItem}', [CartItemController::class, 'destroy']);
 

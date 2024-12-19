@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\ResponseHelper;
 use App\Http\Requests\CartStoreRequest;
 use App\Http\Requests\UpdateQuantityRequest;
+use App\Http\Resources\CartItemResource;
 use App\Models\Cart_item;
 use App\Models\Store_product;
 use Illuminate\Http\Request;
@@ -29,6 +30,26 @@ class CartItemController extends Controller
         return ResponseHelper::jsonResponse(['the product is added to cart'=>$cartItem,
             'total_price' => $storeProduct->price * $product['quantity']
             ,], 'Item added to cart successfully');
+    }
+
+    public function getCartItems()
+    {
+        // Fetch cart items for the user
+        $cartItems = Cart_item::with(['store_product.product'])
+            ->where('user_id', auth()->id())
+            ->get();
+
+        // Check if the cart is empty
+        if ($cartItems->isEmpty()) {
+            return ResponseHelper::jsonResponse([], 'Your cart is empty.', 404);
+        }
+
+        // Return the cart items using CartItemResource
+        return ResponseHelper::jsonResponse(
+            CartItemResource::collection($cartItems),
+            'Cart items fetched successfully.',
+            200
+        );
     }
 
     public function updateQuantitiyItem(UpdateQuantityRequest $request, $cartItemId)
