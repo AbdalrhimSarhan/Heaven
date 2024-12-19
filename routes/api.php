@@ -32,7 +32,7 @@ Route::group([
     Route::post('refresh', [UserController::class, 'refresh']);
     Route::post('me', [UserController::class, 'me']);
     Route::post('update/{user}', [UserController::class, 'updateProfile'])->missing(function(){
-        return response()->json('user not found', 404);
+        return response()->json(__('message.user_not_found'), 404);
     });
 
     Route::get('/categories', [CategoryController::class, 'index']);

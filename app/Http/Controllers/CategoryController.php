@@ -24,7 +24,7 @@ class CategoryController extends Controller
             ];
         });
 
-        return ResponseHelper::jsonResponse($data, 'successfully');
+        return ResponseHelper::jsonResponse($data, __('message.category.index'));
     }
 
     public function showStores(Request $request, Category $category)
@@ -36,6 +36,6 @@ class CategoryController extends Controller
         return ResponseHelper::jsonResponse([
             'category' => $language === 'ar' ? $category->name_ar : $category->name_en,
             'stores' => StoreResource::collection($stores)->additional(['lang' => $language]),
-        ], 'successfully');
+        ], __('message.category.show'));
     }
 }

@@ -32,10 +32,10 @@ class CartItemController extends Controller
 
         return ResponseHelper::jsonResponse(['the product is added to cart'=>$cartItem,
             'total_price' => $storeProduct->price * $product['quantity']
-            ,], 'Item added to cart successfully');
+            ,], __('message.cart.success'));
             } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             // Handle the case where the store_product is not found
-        return ResponseHelper::jsonResponse(null, 'Store product not found', 404, false);
+        return ResponseHelper::jsonResponse(null, __('message.cart.store') ,404, false);
         } catch (\Exception $e) {
             // Handle any other exceptions
             return ResponseHelper::jsonResponse(null, $e->getMessage(), 500, false);
@@ -51,32 +51,33 @@ class CartItemController extends Controller
 
         // Check if the cart is empty
         if ($cartItems->isEmpty()) {
-            return ResponseHelper::jsonResponse([], 'Your cart is empty.', 404);
+            return ResponseHelper::jsonResponse([], __('message.show_fail'), 404);
         }
 
         // Return the cart items using CartItemResource
         return ResponseHelper::jsonResponse(
             CartItemResource::collection($cartItems),
-            'Cart items fetched successfully.',
+        __('message.show_success'),
             200
         );
     }
 
     public function updateQuantitiyItem(UpdateQuantityRequest $request, $cartItemId)
     {
+        $language = request()->get('lang', 'en');
         $validQuantity = $request->validated();
         // Find the cart item by ID
         $cartItem = Cart_item::find($cartItemId);
 
         if (!$cartItem) {
-            return ResponseHelper::jsonResponse([], 'Cart item not found', 404,false);
+            return ResponseHelper::jsonResponse([], __('message.cart.update_fail'), 404,false);
         }
 
         // Get the related store product
         $storeProduct = $cartItem->store_product;
 
         if (!$storeProduct) {
-            return ResponseHelper::jsonResponse([], 'Store product not found', 404,false);
+            return ResponseHelper::jsonResponse([], __('message.cart.stores'), 404,false);
         }
 
         // New and old quantity
@@ -91,7 +92,7 @@ class CartItemController extends Controller
         } else {
             // Ensure sufficient stock is available
             if ($storeProduct->quantity < $quantityDifference) {
-                return ResponseHelper::jsonResponse([], 'Not enough stock available.', 400,false);
+                return ResponseHelper::jsonResponse([], __('message.cart.less_quantity'), 400,false);
             }
             $storeProduct->quantity -= $quantityDifference; // Reduce the store stock
         }
@@ -103,17 +104,21 @@ class CartItemController extends Controller
         $cartItem->quantity = $newQuantity;
         $cartItem->save();
 
+        $productName = $language === 'ar'
+            ? $storeProduct->product->name_ar
+            : $storeProduct->product->name_en;
+
         // Return a success response
         return ResponseHelper::jsonResponse([
             'updated_cart_item' => [
                 'id' => $cartItem->id,
-                'product_name' => $storeProduct->product->name,
+                'product_name' =>  $productName,
                 'quantity' => $cartItem->quantity,
                 'unit_price' => $storeProduct->price,
                 'total_price' => $cartItem->quantity * $storeProduct->price,
             ],
             'remaining_stock' => $storeProduct->quantity,
-        ], 'Quantity updated successfully', 200);
+        ], __('message.cart.find_quantity'), 200);
 
     }
 
@@ -123,24 +128,24 @@ class CartItemController extends Controller
             $cartItem = Cart_item::find($cartItemId);
 
             if (!$cartItem) {
-                return ResponseHelper::jsonResponse(null, 'Cart item not found', 404, false);
+                return ResponseHelper::jsonResponse(null, __('message.cart.fail'), 404, false);
             }
 
             $storeProductId = $cartItem->store_product_id;
             if($cartItem->order_id != null){
-                return ResponseHelper::jsonResponse([], 'Can\'t Deleted Item after confirm the order !', 404,false);
+                return ResponseHelper::jsonResponse([], __('message.cart.after_confirm'), 404,false);
             }
 
             $storeProduct = Store_product::find($storeProductId);
 
             if (!$storeProduct) {
-                return ResponseHelper::jsonResponse(null, 'Store product not found', 404, false);
+                return ResponseHelper::jsonResponse(null, __('message.cart.store'), 404, false);
             }
 
             $storeProduct->increment('quantity', $cartItem->quantity);
             $cartItem->delete();
 
-            return ResponseHelper::jsonResponse(null, 'Item deleted successfully');
+            return ResponseHelper::jsonResponse(null, __('message.cart.destroy_success'));
         } catch (\Exception $e) {
             return ResponseHelper::jsonResponse(null, $e->getMessage(), 500, false);
         }

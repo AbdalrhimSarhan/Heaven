@@ -39,7 +39,7 @@ class UserController extends Controller
 
         return ResponseHelper::jsonResponse(
             UserResource::make($user),
-            'Registration successful',
+            __('message.register_success'),
             200,
             true
         );
@@ -57,12 +57,12 @@ class UserController extends Controller
         $user = User::where('mobile',$request->mobile)->first();
 
         if(!$user){
-            return ResponseHelper::jsonResponse(null,'user not found',404,true);
+            return ResponseHelper::jsonResponse(null,__('message.user_not_found'),404,true);
         }
 
         $token = JWTAuth::fromUser($user);
 
-        return ResponseHelper::jsonResponse($token, 'login successfully', 200, true);
+        return ResponseHelper::jsonResponse($token, __('message.login_successfully'), 200, true);
     }
 
     public function updateProfile(UpdateProfile $request,User $user){
@@ -76,7 +76,7 @@ class UserController extends Controller
             unset($data['image']);
         }
         $user->update($data);
-        return ResponseHelper::jsonResponse(UserResource::make($user),'user updated successfully',200,true);
+        return ResponseHelper::jsonResponse(UserResource::make($user),__('message.user_updated_successfully'),200,true);
 
     }
 
@@ -89,7 +89,7 @@ class UserController extends Controller
     {
         $user = auth()->user()->only('id','first_name','last_name','mobile','location','image');
 //        return response()->json(auth()->user());
-        return ResponseHelper::jsonResponse($user,auth()->user()->first_name.' '.auth()->user()->last_name.' profile');
+        return ResponseHelper::jsonResponse($user,auth()->user()->first_name.' '.auth()->user()->last_name.__(' message.profile'));
     }
 
     /**
@@ -101,7 +101,7 @@ class UserController extends Controller
     {
         auth()->logout();
 
-        return ResponseHelper::jsonResponse(null,'logout successfully');
+        return ResponseHelper::jsonResponse(null,__('message.logout'));
     }
 
     /**

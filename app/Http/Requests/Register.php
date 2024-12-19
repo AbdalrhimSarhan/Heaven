@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class Register extends FormRequest
+class  Register extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -36,6 +36,14 @@ class Register extends FormRequest
         ];
     }
 
+    public function attributes(){
+        return[
+            'first_name'=>__('register.first_name'),
+            'last_name'=>__('register.last_name'),
+            'mobile'=>__('register.mobile'),
+            'location'=>__('register.location'),
+        ];
+    }
     /**
      * Get custom error messages for validation rules.
      */

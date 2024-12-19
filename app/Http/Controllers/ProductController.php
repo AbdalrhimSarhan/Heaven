@@ -31,17 +31,17 @@ class ProductController extends Controller
                 ->value('id'); // Assuming 'id' is the primary key
 
             if (!$storeProductId) {
-                return ResponseHelper::jsonResponse(null, 'Product not found in this store', 404, false);
+                return ResponseHelper::jsonResponse(null, __('message.product_not_found'), 404, false);
             }
 
             $response = ProductResource::make($product)->additional(['lang' => $language])->toArray(request());
 
             $response['store_product_id'] = $storeProductId;
 
-            return ResponseHelper::jsonResponse($response, 'successfully');
+            return ResponseHelper::jsonResponse($response, __('message.success'), 200, true);
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return ResponseHelper::jsonResponse(null, 'Resource not found', 404, false);
+            return ResponseHelper::jsonResponse(null, __('message.ModelNotFoundException'), 404, false);
         }
     }
 
@@ -51,14 +51,15 @@ class ProductController extends Controller
         $product = Product::where("name_{$language}", 'like', '%' . $name . '%')->get();
 
         if($product->isEmpty()){
-            return ResponseHelper::jsonResponse(null, 'Product not found', 404, false);
+            return ResponseHelper::jsonResponse(null,
+                __('message.product_not_found'), 404, false);
         }
 
         $response = ProductResource::collection($product)->additional(['lang' => $language])->toArray(request());
 
         return ResponseHelper::jsonResponse(
             $response,
-        'successfully search');
+        __('message.success_search'));
 
     }
 

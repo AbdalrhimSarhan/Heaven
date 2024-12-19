@@ -33,7 +33,7 @@ class StoreController extends Controller
         // Return the products with the language parameter
         return ResponseHelper::jsonResponse(
             ProductResource::collection($products)->additional(['lang' => $language]),
-            'successfully'
+            __('messages.success')
         );
     }
 

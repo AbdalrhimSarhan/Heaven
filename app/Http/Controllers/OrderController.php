@@ -17,7 +17,7 @@ class OrderController extends Controller
         $cartItems = Cart_item::where('user_id', $userId)->whereNull('order_id')->get();
 
         if ($cartItems->isEmpty()) {
-            return ResponseHelper::jsonResponse(null,'No items in cart to confirm.',400,false);
+            return ResponseHelper::jsonResponse(null,__('message.order.empty'),400,false);
         }
 
         // Create a new order
@@ -32,7 +32,7 @@ class OrderController extends Controller
         Cart_item::where('user_id', $userId)->whereNull('order_id')->update([
             'order_id' => $order->id,
         ]);
-        return ResponseHelper::jsonResponse($order,'your order has been confirmed.');
+        return ResponseHelper::jsonResponse($order,__('message.order.success'),200,false);
     }
 
     public function getClientOrders()
@@ -45,12 +45,12 @@ class OrderController extends Controller
 
         // Check if the user has any orders
         if ($orders->isEmpty()) {
-            return ResponseHelper::jsonResponse([], 'You have no orders yet.', 404,false);
+            return ResponseHelper::jsonResponse([], __('message.order.not found'), 404,false);
         }
 
         // Return the orders using OrderResource
         return ResponseHelper::jsonResponse([
             'orders' => OrderResource::collection($orders)->additional(['lang' => $language])->toArray(request()),
-        ], 'Client orders retrieved successfully', 200);
+        ], __('message.getClientOrders'), 200);
     }
 }
