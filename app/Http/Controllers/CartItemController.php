@@ -15,8 +15,11 @@ class CartItemController extends Controller
     public function addToCart(CartStoreRequest $request){
 
         $product = $request->validated();
+        try {
+        $storeProduct = Store_product::where('product_id', $product['product_id'])
+            ->where('store_id', $product['store_id'])
+            ->firstOrFail();
 
-        $storeProduct = Store_product::findOrFail($product['store_product_id']);
 
         $cartItem = Cart_item::create([
             'user_id' => auth()->id(),
@@ -30,6 +33,13 @@ class CartItemController extends Controller
         return ResponseHelper::jsonResponse(['the product is added to cart'=>$cartItem,
             'total_price' => $storeProduct->price * $product['quantity']
             ,], 'Item added to cart successfully');
+            } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            // Handle the case where the store_product is not found
+        return ResponseHelper::jsonResponse(null, 'Store product not found', 404, false);
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            return ResponseHelper::jsonResponse(null, $e->getMessage(), 500, false);
+        }
     }
 
     public function getCartItems()
@@ -59,14 +69,14 @@ class CartItemController extends Controller
         $cartItem = Cart_item::find($cartItemId);
 
         if (!$cartItem) {
-            return ResponseHelper::jsonResponse([], 'Cart item not found', 404);
+            return ResponseHelper::jsonResponse([], 'Cart item not found', 404,false);
         }
 
         // Get the related store product
         $storeProduct = $cartItem->store_product;
 
         if (!$storeProduct) {
-            return ResponseHelper::jsonResponse([], 'Store product not found', 404);
+            return ResponseHelper::jsonResponse([], 'Store product not found', 404,false);
         }
 
         // New and old quantity
@@ -81,7 +91,7 @@ class CartItemController extends Controller
         } else {
             // Ensure sufficient stock is available
             if ($storeProduct->quantity < $quantityDifference) {
-                return ResponseHelper::jsonResponse([], 'Not enough stock available.', 400);
+                return ResponseHelper::jsonResponse([], 'Not enough stock available.', 400,false);
             }
             $storeProduct->quantity -= $quantityDifference; // Reduce the store stock
         }
@@ -117,6 +127,9 @@ class CartItemController extends Controller
             }
 
             $storeProductId = $cartItem->store_product_id;
+            if($cartItem->order_id != null){
+                return ResponseHelper::jsonResponse([], 'Can\'t Deleted Item after confirm the order !', 404,false);
+            }
 
             $storeProduct = Store_product::find($storeProductId);
 

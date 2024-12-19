@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Route;
 */
 Route::group([
 
-    'middleware' => 'api',
+    'middleware' => ['api','setLang'],
     'prefix' => 'auth'
 
 ], function ($router) {
@@ -45,8 +45,10 @@ Route::group([
     Route::put('/cart/{cartItemId}', [CartItemController::class, 'updateQuantitiyItem']);
     Route::delete('/cart/{cartItem}', [CartItemController::class, 'destroy']);
 
-    Route::post('order',[OrderController::class, 'confirmOrder']);
+    Route::post('/order',[OrderController::class, 'confirmOrder']);
     Route::get('/orders', [OrderController::class, 'getClientOrders']);
+
+    Route::get('/search/{name}',[ProductController::class, 'search']);
 
 });
 

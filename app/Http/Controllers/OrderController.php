@@ -37,6 +37,7 @@ class OrderController extends Controller
 
     public function getClientOrders()
     {
+        $language = request()->get('lang', 'en');
         // Fetch the user's orders with relations
         $orders = Order::with(['Cart_items.store_product.product'])
             ->where('user_id', auth()->id())
@@ -44,12 +45,12 @@ class OrderController extends Controller
 
         // Check if the user has any orders
         if ($orders->isEmpty()) {
-            return ResponseHelper::jsonResponse([], 'You have no orders yet.', 404);
+            return ResponseHelper::jsonResponse([], 'You have no orders yet.', 404,false);
         }
 
         // Return the orders using OrderResource
         return ResponseHelper::jsonResponse([
-            'orders' => OrderResource::collection($orders),
+            'orders' => OrderResource::collection($orders)->additional(['lang' => $language])->toArray(request()),
         ], 'Client orders retrieved successfully', 200);
     }
 }

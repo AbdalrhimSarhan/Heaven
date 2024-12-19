@@ -5,38 +5,14 @@ namespace App\Http\Controllers;
 use App\Helpers\ResponseHelper;
 use App\Http\Resources\ProductResource;
 use App\Models\Category;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Lcobucci\JWT\Signer\Rsa;
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show($categoryId, $storeId, $productId)
     {
         try {
@@ -69,29 +45,22 @@ class ProductController extends Controller
         }
     }
 
-
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function search($name)
     {
-        //
+        $language = request()->get('lang', 'en');
+        $product = Product::where("name_{$language}", 'like', '%' . $name . '%')->get();
+
+        if($product->isEmpty()){
+            return ResponseHelper::jsonResponse(null, 'Product not found', 404, false);
+        }
+
+        $response = ProductResource::collection($product)->additional(['lang' => $language])->toArray(request());
+
+        return ResponseHelper::jsonResponse(
+            $response,
+        'successfully search');
+
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }

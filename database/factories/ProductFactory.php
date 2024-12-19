@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use Faker\Factory as FakerFactory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,13 +16,10 @@ class ProductFactory extends Factory
      */
     public function definition(): array
     {
-        $fakerAr = FakerFactory::create('ar_SA'); // Arabic Faker instance
-
         return [
-            'name_ar' => $fakerAr->words(3, true), // Arabic product name
-            'name_en' => fake()->words(3, true),        // English product name
-            'description_ar' => $fakerAr->sentence(8),   // Arabic product description
-            'description_en' => fake()->sentence(8),         // English product description
+            'name' => $this->faker->word,
+            'description' => $this->faker->sentence,
+            'image' => $this->faker->imageUrl(640, 480, 'product', true, 'product'),
         ];
     }
 }
