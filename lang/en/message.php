@@ -35,5 +35,12 @@ return [
         'not found'=>'You have no orders yet.',
         'getClientOrders'=>'Client orders retrieved successfully',
     ],
+    'unauthorized_access'=>'Unauthorized !',
+    'get_all_stores'=>'Get All Stores Successfully',
+    'create_store'=>'Create Store Successfully',
+    'store_not_found'=>'Store not found',
+    'get_store'=>'Get Store Successfully',
+    'delete_store'=>'Delete Store Successfully',
+    'update_store'=>'Update Store Successfully',
 
 ];
