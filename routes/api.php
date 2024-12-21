@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CartItemController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\FavouriteProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StoreController;
@@ -50,6 +51,9 @@ Route::group([
 
     Route::get('/search/{name}',[ProductController::class, 'search'])->name('product.search');
 
+    Route::post('/add/favourites', [FavouriteProductController::class, 'addToFavourites']);
+    Route::get('/get/favourites', [FavouriteProductController::class, 'getFavourites']);
+    Route::delete('/delete/favourite/{favouriteId}', [FavouriteProductController::class, 'deleteFavourite']);
 });
 
 

@@ -14,7 +14,6 @@ class CategorySeeder extends Seeder
     public function run(): void
     {
         $categories = ['Restaurant', 'Perfumes', 'Clothes', 'Electronics'];
-
         $categories_ar = ['مطاعم', 'عطور', 'ملابس', 'إلكترونيات'];
 
         foreach ($categories as $index => $categoryName) {
@@ -24,6 +23,4 @@ class CategorySeeder extends Seeder
             ]);
         }
     }
-
-
 }

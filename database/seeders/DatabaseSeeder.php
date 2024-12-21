@@ -6,6 +6,7 @@ namespace Database\Seeders;
 use App\Models\Product;
 use App\Models\Store;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -41,18 +42,15 @@ class DatabaseSeeder extends Seeder
 
                 // Insert in batches of 50
                 if (count($pivotData) >= 50) {
-                    DB::table('product_store')->insert($pivotData);
+                    DB::table('store_product')->insert($pivotData);
                     $pivotData = [];  // Reset after insert
                 }
             }
 
             // Insert any remaining data in smaller batches
             if (!empty($pivotData)) {
-                DB::table('product_store')->insert($pivotData);
+                DB::table('store_product')->insert($pivotData);
             }
         }
     }
-
-
-
 }
