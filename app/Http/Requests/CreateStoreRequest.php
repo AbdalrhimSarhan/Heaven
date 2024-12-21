@@ -31,15 +31,19 @@ class CreateStoreRequest extends FormRequest
         ];
     }
 
-    public function messages(){
-        return[
-            'name_en.required'=>'The name_en field is required.',
-            'name_ar.required'=>'The name_ar field is required.',
-            'category_id.required'=>'The category field is required.',
-            'category_id.exists'=>'The category is not exist.',
-            'image.required'=>'The image field is required.',
-            'location_en.required'=>'The location field is required.',
-            'location_ar.required'=>'The location field is required.',
+    public function attributes(): array
+    {
+        return [
+            'name_en' => __('message.name_en'),
+            'name_ar' => __('message.name_ar'),
+            'category_id' => __('message.category.id'),
+            'image' => __('message.image'),
+            'location_en' => __('message.location_en'),
+            'location_ar' => __('message.location_ar'),
         ];
     }
+
+
+
+
 }

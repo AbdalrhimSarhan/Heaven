@@ -43,15 +43,11 @@ class UpdateQuantityRequest extends FormRequest
         ];
     }
 
-    /**
-     * Custom messages for validation errors.
-     */
-    public function messages()
+    public function attributes(): array
     {
         return [
-            'quantity.required' => 'The quantity field is required.',
-            'quantity.integer' => 'The quantity must be a valid integer.',
-            'quantity.min' => 'The quantity must be at least 1.',
+            'quantity' => __('message.quantity'),
         ];
     }
+
 }

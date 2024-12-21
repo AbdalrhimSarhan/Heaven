@@ -8,6 +8,8 @@ return [
     'logout'=>'Logout successfully',
     'success'=>'Successfully',
     'category'=>[
+        'id'=>'Category id',
+        'name'=>'Category',
         'index'=>'Category List All',
         'show'=>'Category Show Successfully',
     ],
@@ -42,5 +44,25 @@ return [
     'get_store'=>'Get Store Successfully',
     'delete_store'=>'Delete Store Successfully',
     'update_store'=>'Update Store Successfully',
+    'name_en'=>'English Name ',
+    'name_ar'=>'Arabic Name ',
+    'description_en'=>'English Description ',
+    'description_ar'=>'Arabic Description ',
+    'location_en'=>'English Location ',
+    'location_ar'=>'Arabic Location ',
+    'image'=>'Image',
+    'price'=>'Price',
+    'quantity'=>'Quantity',
+    'first_name' => 'First Name',
+    'last_name' => 'Last Name',
+    'mobile' => 'Mobile Number',
+    'image_profile' => 'Profile Image',
+    'location' => 'Location',
+    'store_id' => 'Store ID',
+    'product_id' => 'Product ID',
+
+
+
+
 
 ];

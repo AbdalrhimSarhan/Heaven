@@ -16,7 +16,7 @@ class StoreResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $language = $this->additional['lang'] ?? 'en';
+        $language = app()->getLocale();
         $imageUrl = Storage::url($this->image);
         $data = [
             'id' => $this->id,

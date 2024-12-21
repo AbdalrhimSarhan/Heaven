@@ -15,7 +15,7 @@ class OrderResource extends JsonResource
     public function toArray(Request $request): array
     {
         $cartItemsData = [];
-        $language = $request->get('lang', 'en');
+        $language = app()->getLocale();
 
         foreach ($this->Cart_items as $cartItem) {
             // Dynamically fetch the product name based on the language

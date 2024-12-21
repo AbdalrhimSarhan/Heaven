@@ -29,4 +29,16 @@ class UpdateProfile extends FormRequest
             'location'=>'sometimes|string|max:100',
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'first_name' => __('message.first_name'),
+            'last_name' => __('message.last_name'),
+            'mobile' => __('message.mobile'),
+            'image' => __('message.image_profile'),
+            'location' => __('message.location'),
+        ];
+    }
+
 }

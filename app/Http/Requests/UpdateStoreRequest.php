@@ -31,16 +31,16 @@ class UpdateStoreRequest extends FormRequest
         ];
     }
 
-
-    public function messages(){
-        return[
-            'name_en.sometimes'=>'The name_en field is required.',
-            'name_ar.sometimes'=>'The name_ar field is required.',
-            'category_id.sometimes'=>'The category field is required.',
-            'category_id.exists'=>'The category is not exist.',
-            'image.sometimes'=>'The image field is required.',
-            'location_en.sometimes'=>'The location field is required.',
-            'location_ar.sometimes'=>'The location field is required.',
+    public function attributes(): array
+    {
+        return [
+            'name_en' => __('message.name_en'),
+            'name_ar' => __('message.name_ar'),
+            'category_id' => __('message.category_id'),
+            'image' => __('message.image'),
+            'location_en' => __('message.location_en'),
+            'location_ar' => __('message.location_ar'),
         ];
     }
+
 }

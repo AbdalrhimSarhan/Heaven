@@ -38,25 +38,13 @@ class  Register extends FormRequest
 
     public function attributes(){
         return[
-            'first_name'=>__('register.first_name'),
-            'last_name'=>__('register.last_name'),
-            'mobile'=>__('register.mobile'),
-            'location'=>__('register.location'),
+            'first_name'=>__('message.first_name'),
+            'last_name'=>__('message.last_name'),
+            'image' => __('message.image_profile'),
+            'mobile'=>__('message.mobile'),
+            'location'=>__('message.location'),
         ];
     }
-    /**
-     * Get custom error messages for validation rules.
-     */
-    public function messages()
-    {
-        return [
-            'first_name.required' => 'First Name is required',
-            'last_name.required' => 'Last Name is required',
-            'mobile.numeric' => 'Mobile number must be numeric.',
-            'mobile.digits' => 'Mobile number must be exactly 10 digits.',
-            'mobile.regex' => 'Mobile number must start with "09" and be followed by 8 digits.',
-            'mobile.unique' => 'The provided mobile number is already registered.',
-            'location.required' => 'Location is required',
-        ];
-    }
+
+
 }

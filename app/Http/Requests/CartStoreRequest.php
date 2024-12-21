@@ -40,5 +40,14 @@ class CartStoreRequest extends FormRequest
         ];
     }
 
+    public function attributes(): array
+    {
+        return [
+            'store_id' => __('message.store_id'),
+            'product_id' => __('message.product_id'),
+            'quantity' => __('message.quantity'),
+        ];
+    }
+
 
 }

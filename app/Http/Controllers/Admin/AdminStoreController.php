@@ -19,12 +19,22 @@ class AdminStoreController extends Controller
 
     public function createNewStore(CreateStoreRequest  $request){
         $newStore = $request->validated();
-        $store = Store::create($newStore);
+
+        $store = Store::create([
+            'name_en' => $newStore['name_en'],
+            'name_ar' => $newStore['name_ar'],
+            'image' => $newStore['image'],
+            'category_id' => $newStore['category_id'],
+            'location_en' => $newStore['location_en'],
+            'location_ar' => $newStore['location_ar'],
+        ]);
+
         return ResponseHelper::jsonResponse($store ,__('message.create_store'),200,true);
 
     }
 
     public function showStore(Store $store){
+
         return ResponseHelper::jsonResponse($store ,__('message.get_store'),200,true);
     }
 

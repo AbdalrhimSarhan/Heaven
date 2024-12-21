@@ -16,7 +16,7 @@ class ProductResource extends JsonResource
     public function toArray(Request $request): array
     {
         // Retrieve the 'lang' parameter passed as additional data
-        $language = $this->additional['lang'] ?? 'en';
+        $language = app()->getLocale();
 
         $name = $language === 'ar' ? $this->name_ar : $this->name_en;
         $description = $language === 'ar' ? $this->description_ar : $this->description_en;
