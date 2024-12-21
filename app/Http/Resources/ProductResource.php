@@ -23,7 +23,7 @@ class ProductResource extends JsonResource
 
         $imageUrl = Storage::url($this->image);
 
-        return [
+        $data = [
             'id' => $this->id,
             'name' => $name,
             'description' => $description,
@@ -31,5 +31,8 @@ class ProductResource extends JsonResource
             'price' => $this->pivot->price, // Comes from store_product table
             'quantity' => $this->pivot->quantity, // Comes from store_product table
         ];
+
+        return $data;
     }
+
 }

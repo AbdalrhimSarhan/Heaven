@@ -48,7 +48,7 @@ Route::group([
     Route::post('/order',[OrderController::class, 'confirmOrder']);
     Route::get('/orders', [OrderController::class, 'getClientOrders']);
 
-    Route::get('/search/{name}',[ProductController::class, 'search']);
+    Route::get('/search/{name}',[ProductController::class, 'search'])->name('product.search');
 
 });
 

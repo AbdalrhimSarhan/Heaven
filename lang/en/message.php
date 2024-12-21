@@ -8,7 +8,7 @@ return [
     'logout'=>'Logout successfully',
     'success'=>'Successfully',
     'category'=>[
-        'id'=>'Category id',
+        'id'=>'Category ID',
         'name'=>'Category',
         'index'=>'Category List All',
         'show'=>'Category Show Successfully',

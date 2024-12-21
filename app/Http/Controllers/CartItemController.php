@@ -64,7 +64,7 @@ class CartItemController extends Controller
 
     public function updateQuantitiyItem(UpdateQuantityRequest $request, $cartItemId)
     {
-        $language = request()->get('lang', 'en');
+        $language = app()->getLocale();
         $validQuantity = $request->validated();
         // Find the cart item by ID
         $cartItem = Cart_item::find($cartItemId);

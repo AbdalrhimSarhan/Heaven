@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\ResponseHelper;
 use App\Http\Resources\ProductResource;
+use App\Http\Resources\StoreProductResource;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -47,15 +48,18 @@ class ProductController extends Controller
 
     public function search($name)
     {
-        $language = request()->get('lang', 'en');
-        $product = Product::where("name_{$language}", 'like', '%' . $name . '%')->get();
+        $language = app()->getLocale();
+        $product = Product::where("name_{$language}", 'like', '%' . $name . '%')
+            ->with(['stores.category', 'stores' => function ($query) {
+            $query->withPivot('price', 'quantity'); // Include pivot fields
+        }])->get();;
 
         if($product->isEmpty()){
             return ResponseHelper::jsonResponse(null,
                 __('message.product_not_found'), 404, false);
         }
 
-        $response = ProductResource::collection($product)->additional(['lang' => $language])->toArray(request());
+        $response = StoreProductResource::collection($product);
 
         return ResponseHelper::jsonResponse(
             $response,

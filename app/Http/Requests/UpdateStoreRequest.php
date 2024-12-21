@@ -36,7 +36,7 @@ class UpdateStoreRequest extends FormRequest
         return [
             'name_en' => __('message.name_en'),
             'name_ar' => __('message.name_ar'),
-            'category_id' => __('message.category_id'),
+            'category_id' => __('message.category.id'),
             'image' => __('message.image'),
             'location_en' => __('message.location_en'),
             'location_ar' => __('message.location_ar'),

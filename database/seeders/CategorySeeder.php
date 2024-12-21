@@ -15,9 +15,15 @@ class CategorySeeder extends Seeder
     {
         $categories = ['Restaurant', 'Perfumes', 'Clothes', 'Electronics'];
 
-        foreach ($categories as $categoryName) {
-            Category::create(['name' => $categoryName]);
+        $categories_ar = ['مطاعم', 'عطور', 'ملابس', 'إلكترونيات'];
+
+        foreach ($categories as $index => $categoryName) {
+            Category::create([
+                'name_en' => $categoryName,            // English name
+                'name_ar' => $categories_ar[$index],   // Arabic name
+            ]);
         }
     }
+
 
 }

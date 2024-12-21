@@ -12,26 +12,47 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      */
-    public function run()
+    public function run(): void
     {
-        // Seed the fixed categories
+        // Seed the fixed categories first
         $this->call(CategorySeeder::class);
 
-        // Create stores with fixed categories
+        // Create stores with fixed categories in smaller batches
         $stores = Store::factory(10)->create(); // Create 10 stores
 
-        // Create products
-        $products = Product::factory(50)->create(); // Create 50 products
+        // Create products one by one to avoid holding large collections in memory
+        $products = Product::factory(20)->create(); // Create 50 products
 
-        // Attach products to stores with pivot data (price, quantity)
+        // Loop through each store and attach products in smaller chunks to avoid high memory usage
         foreach ($stores as $store) {
-            $store->products()->attach(
-                $products->random(rand(5, 15))->pluck('id')->toArray(), // Attach 5-15 random products
-                [
-                    'price' => fake()->randomFloat(2, 10, 100), // Random price
+            $randomProducts = $products->random(rand(5, 15));
+
+            // Attach each product in batches of 50 to avoid memory overload
+            $pivotData = [];
+            foreach ($randomProducts as $product) {
+                $pivotData[] = [
+                    'store_id' => $store->id,
+                    'product_id' => $product->id,
+                    'price' => fake()->randomFloat(2, 10, 100),  // Random price
                     'quantity' => fake()->numberBetween(1, 100), // Random quantity
-                ]
-            );
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+
+                // Insert in batches of 50
+                if (count($pivotData) >= 50) {
+                    DB::table('product_store')->insert($pivotData);
+                    $pivotData = [];  // Reset after insert
+                }
+            }
+
+            // Insert any remaining data in smaller batches
+            if (!empty($pivotData)) {
+                DB::table('product_store')->insert($pivotData);
+            }
         }
     }
+
+
+
 }

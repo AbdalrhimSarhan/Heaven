@@ -21,10 +21,10 @@ class StoreFactory extends Factory
         return [
             'category_id' => Category::inRandomOrder()->first()->id, // Pick a random category
             'name_en' => $this->faker->company,
-            'name_ar' => $this->$faker->company,
+            'name_ar' => $faker->company,
             'image' => $this->faker->imageUrl(640, 480, 'business', true, 'store'),
             'location_en' => $this->faker->address,
-            'location_ar' => $this->$faker->address,
+            'location_ar' => $faker->address,
         ];
     }
 }
