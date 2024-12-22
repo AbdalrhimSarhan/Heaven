@@ -1,5 +1,7 @@
 <?php
 
+use App\Helpers\ResponseHelper;
+use App\Http\Controllers\Admin\AdminStoreController;
 use App\Http\Controllers\CartItemController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
@@ -50,6 +52,23 @@ Route::group([
 
     Route::get('/search/{name}',[ProductController::class, 'search'])->name('product.search');
 
+});
+
+Route::middleware(['auth:api', 'admin','setLang'])->group(function () {
+    Route::get('/showAllStores',[AdminStoreController::class,'getAllStores']);
+    Route::get('showStore/{store}',[AdminStoreController::class,'showStore'])->missing(function(Request $request){
+        app()->setLocale($request->header('lang','en'));
+        return ResponseHelper::jsonResponse('',__('message.store_not_found'), 404,false);
+    });
+    Route::post('/createStore',[AdminStoreController::class,'createNewStore']);
+    Route::post('/updateStore/{store}',[AdminStoreController::class,'updateStore'])->missing(function(Request $request){
+        app()->setLocale($request->header('lang','en'));
+        return ResponseHelper::jsonResponse('',__('message.store_not_found'), 404,false);
+    });
+    Route::delete('/destroyStore/{store}',[AdminStoreController::class,'destroyStore'])->missing(function(Request $request){
+        app()->setLocale($request->header('lang','en'));
+        return ResponseHelper::jsonResponse('',__('message.store_not_found'), 404,false);
+    });
 });
 
 

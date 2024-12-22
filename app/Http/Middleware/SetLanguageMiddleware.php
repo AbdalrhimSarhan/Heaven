@@ -12,9 +12,10 @@ class SetLanguageMiddleware
         $language = $request->header('lang', 'en');
 
         if (!in_array($language, ['en', 'ar'])) {
-            $language = 'en';
+            app()->setLocale('en');
         }
-        $request->merge(['lang' => $language]);
+
+        app()->setLocale($language);
 
         return $next($request);
     }
