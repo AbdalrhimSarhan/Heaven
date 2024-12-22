@@ -26,6 +26,6 @@ class Store extends Model
 
     public function products(){
 
-        return $this->belongsToMany(Product::class,'store_product')->withPivot('price', 'quantity');
+        return $this->belongsToMany(Product::class,'store_product')->withPivot('id','price', 'quantity');
     }
 }

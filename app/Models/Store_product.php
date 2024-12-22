@@ -10,7 +10,7 @@ class Store_product extends Model
     use HasFactory;
 
     protected $table = 'store_product';
-    protected $fillable = ['store_id', 'product_id', 'quantity', 'price'];
+    protected $fillable = ['id','store_id', 'product_id', 'quantity', 'price'];
 
     public function cart_items()
     {
@@ -32,4 +32,5 @@ class Store_product extends Model
     {
         return $this->belongsTo(Product::class, 'product_id');
     }
+
 }
