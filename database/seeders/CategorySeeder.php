@@ -13,17 +13,20 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        $categories = ['Restaurant', 'Perfumes', 'Clothes', 'Electronics'];
+        $categories = [
+            ['name_en' => 'Restaurant', 'name_ar' => 'مطاعم', 'image' => 'images/restaurant.jpg'],
+            ['name_en' => 'Perfumes', 'name_ar' => 'عطور', 'image' => 'images/perfumes.jpg'],
+            ['name_en' => 'Clothes', 'name_ar' => 'ملابس', 'image' => 'images/clothes.jpg'],
+            ['name_en' => 'Electronics', 'name_ar' => 'إلكترونيات', 'image' => 'images/electronics.jpg'],
+        ];
 
-        $categories_ar = ['مطاعم', 'عطور', 'ملابس', 'إلكترونيات'];
-
-        foreach ($categories as $index => $categoryName) {
+        foreach ($categories as $category) {
             Category::create([
-                'name_en' => $categoryName,            // English name
-                'name_ar' => $categories_ar[$index],   // Arabic name
+                'name_en' => $category['name_en'],
+                'name_ar' => $category['name_ar'],
+                'image'   => $category['image'], // Adding the image field
             ]);
         }
     }
-
 
 }

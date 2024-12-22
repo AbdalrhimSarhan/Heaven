@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Category extends Model
 {
     use HasFactory;
-    protected $fillable = ['name_ar', 'name_en'];
+    protected $fillable = ['name_ar', 'name_en','image'];
 
 //    public function getRouteKeyName()
 //    {

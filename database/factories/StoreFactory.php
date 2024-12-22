@@ -17,14 +17,13 @@ class StoreFactory extends Factory
      */
     public function definition(): array
     {
-        $faker = Factory::create('ar_SA');
         return [
             'category_id' => Category::inRandomOrder()->first()->id, // Pick a random category
-            'name_en' => $this->faker->company,
-            'name_ar' => $faker->company,
+            'name_en' => $this->faker->name,
+            'name_ar' => $this->faker->name,
             'image' => $this->faker->imageUrl(640, 480, 'business', true, 'store'),
             'location_en' => $this->faker->address,
-            'location_ar' => $faker->address,
+            'location_ar' => $this->faker->address,
         ];
     }
 }

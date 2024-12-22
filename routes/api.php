@@ -4,6 +4,7 @@ use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Admin\AdminStoreController;
 use App\Http\Controllers\CartItemController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\FavouriteProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StoreController;
@@ -52,6 +53,9 @@ Route::group([
 
     Route::get('/search/{name}',[ProductController::class, 'search'])->name('product.search');
 
+    Route::post('/add/favourites', [FavouriteProductController::class, 'addToFavourites']);
+    Route::get('/get/favourites', [FavouriteProductController::class, 'getFavourites']);
+    Route::delete('/delete/favourite/{favouriteId}', [FavouriteProductController::class, 'deleteFavourite']);
 });
 
 Route::middleware(['auth:api', 'admin','setLang'])->group(function () {
@@ -69,6 +73,8 @@ Route::middleware(['auth:api', 'admin','setLang'])->group(function () {
         app()->setLocale($request->header('lang','en'));
         return ResponseHelper::jsonResponse('',__('message.store_not_found'), 404,false);
     });
+
+    Route::post('/createCategory',[CategoryController::class,'createNewCategory']);
 });
 
 

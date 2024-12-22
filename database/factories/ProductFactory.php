@@ -16,12 +16,11 @@ class ProductFactory extends Factory
      */
     public function definition(): array
     {
-        $faker = Factory::create('ar_SA');
         return [
             'name_en' => $this->faker->word,
-            'name_ar' => $faker->word,
+            'name_ar' => $this->faker->word,
             'description_en' => $this->faker->sentence,
-            'description_ar' => $faker->sentence,
+            'description_ar' => $this->faker->sentence,
             'image' => $this->faker->imageUrl(640, 480, 'product', true, 'product'),
         ];
     }

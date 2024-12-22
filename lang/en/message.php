@@ -12,6 +12,7 @@ return [
         'name'=>'Category',
         'index'=>'Category List All',
         'show'=>'Category Show Successfully',
+        'create'=>'Category Create Successfully',
     ],
     'product_not_found'=>'Product not found',
     'ModelNotFoundException'=>'Resource not found',
@@ -37,6 +38,15 @@ return [
         'not found'=>'You have no orders yet.',
         'getClientOrders'=>'Client orders retrieved successfully',
     ],
+    'store product not found'=>'No matching store product found for the given product and store.',
+    'favourite product'=>[
+        'exists'=>'This product is already in your favourites.',
+        'added' =>'Product added to your favourites successfully.',
+        'empty'=>'You have no favourite products yet.',
+        'retrieved'=>'Favourite products retrieved successfully.',
+        'not found'=>'Favourite product not found.',
+        'deleted'=>'Favourite products deleted successfully.'
+    ],
     'unauthorized_access'=>'Unauthorized !',
     'get_all_stores'=>'Get All Stores Successfully',
     'create_store'=>'Create Store Successfully',
@@ -60,9 +70,4 @@ return [
     'location' => 'Location',
     'store_id' => 'Store ID',
     'product_id' => 'Product ID',
-
-
-
-
-
 ];
