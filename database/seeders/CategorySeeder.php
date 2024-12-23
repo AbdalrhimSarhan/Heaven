@@ -24,7 +24,7 @@ class CategorySeeder extends Seeder
             Category::create([
                 'name_en' => $category['name_en'],
                 'name_ar' => $category['name_ar'],
-                'image'   => $category['image'], // Adding the image field
+                'image' => fake()->imageUrl(200, 200),
             ]);
         }
     }

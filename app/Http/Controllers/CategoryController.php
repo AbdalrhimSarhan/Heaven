@@ -18,11 +18,11 @@ class CategoryController extends Controller
         $categories = Category::all();
 
         $data = $categories->map(function($category) use ($language) {
-            $imageUrl = Storage::url($category->image);
+//            $imageUrl = Storage::url($category->image);
             return [
                 'id' => $category->id,
                 'name' => $language === 'ar' ? $category->name_ar : $category->name_en,
-                'image'=>asset($imageUrl) ?? null,
+                'image'=>$this->getImageUrl($category->image),
             ];
         });
 
@@ -61,5 +61,16 @@ class CategoryController extends Controller
         ]);
 
         return ResponseHelper::jsonResponse($category, __('message.category.create'));
+    }
+
+    private function getImageUrl($image): ?string
+    {
+        if ($image) {
+            return str_starts_with($image, 'https://via.placeholder.com')
+                ? $image
+                : config('app.url').'/storage/'.$image;
+        }
+
+        return null;
     }
 }

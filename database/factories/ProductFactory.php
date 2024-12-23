@@ -21,7 +21,7 @@ class ProductFactory extends Factory
             'name_ar' => $this->faker->word,
             'description_en' => $this->faker->sentence,
             'description_ar' => $this->faker->sentence,
-            'image' => $this->faker->imageUrl(640, 480, 'product', true, 'product'),
+            'image' => fake()->imageUrl(200, 200),
         ];
     }
 }
