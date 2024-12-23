@@ -1,6 +1,7 @@
 <?php
 
 use App\Helpers\ResponseHelper;
+use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Admin\AdminStoreController;
 use App\Http\Controllers\CartItemController;
 use App\Http\Controllers\CategoryController;
@@ -75,6 +76,12 @@ Route::middleware(['auth:api', 'admin','setLang'])->group(function () {
     });
 
     Route::post('/createCategory',[CategoryController::class,'createNewCategory']);
+
+    Route::post('/stores/{storeId}/products', [AdminProductController::class, 'createProduct']);
+    Route::post('/stores/{store_id}/products/{product_id}', [AdminProductController::class, 'updateProduct']);
+    Route::get('/stores/{storeId}/products', [AdminProductController::class, 'getStoreProducts']);
+    Route::get('/stores/{storeId}/products/{productId}', [AdminProductController::class, 'showProductDetails']);
+    Route::delete('/stores/{storeId}/products/{productId}', [AdminProductController::class, 'deleteProduct']);
 });
 
 
