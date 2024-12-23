@@ -22,9 +22,19 @@ class StoreResource extends JsonResource
             'id' => $this->id,
             'name' => $language === 'ar' ? $this->name_ar : $this->name_en,
             'location' => $language === 'ar' ? $this->location_ar : $this->location_en,
-            'image' => asset($imageUrl) ?? null,
+            'image' => $this->getImageUrl($this->image),
         ];
         return $data;
     }
 
+    private function getImageUrl($image): ?string
+    {
+        if ($image) {
+            return str_starts_with($image, 'https://via.placeholder.com')
+                ? $image
+                : config('app.url').'/storage/'.$image;
+        }
+
+        return null;
+    }
 }

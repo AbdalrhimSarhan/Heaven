@@ -28,18 +28,28 @@ class ProductResource extends JsonResource
         $name = $language === 'ar' ? $this->name_ar : $this->name_en;
         $description = $language === 'ar' ? $this->description_ar : $this->description_en;
 
-        $imageUrl = Storage::url($this->image);
 
         $data = [
             'id' => $this->id,
             'name' => $name,
             'description' => $description,
-            'image' => asset($imageUrl) ?? null,
+            'image' => $this->getImageUrl($this->image),
             'price' => $this->pivot->price, // Comes from store_product table
             'quantity' => $this->pivot->quantity, // Comes from store_product table
             'favorite' => $favorite ,
             'stores_product_id' => $store_product,
         ];
         return $data;
+    }
+
+    private function getImageUrl($image): ?string
+    {
+        if ($image) {
+        return str_starts_with($image, 'https://via.placeholder.com')
+            ? $image
+            : config('app.url').'/storage/'.$image;
+    }
+
+        return null;
     }
 }

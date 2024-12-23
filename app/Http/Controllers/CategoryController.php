@@ -6,6 +6,7 @@ use App\Helpers\ResponseHelper;
 use App\Http\Resources\StoreResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Psy\Readline\Hoa\_Protocol;
 
 class CategoryController extends Controller
@@ -17,11 +18,11 @@ class CategoryController extends Controller
         $categories = Category::all();
 
         $data = $categories->map(function($category) use ($language) {
+            $imageUrl = Storage::url($category->image);
             return [
                 'id' => $category->id,
                 'name' => $language === 'ar' ? $category->name_ar : $category->name_en,
-                'created_at' => $category->created_at,
-                'updated_at' => $category->updated_at,
+                'image'=>asset($imageUrl) ?? null,
             ];
         });
 
