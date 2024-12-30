@@ -47,6 +47,13 @@ return [
         'not found'=>'ليس لديك أي طلبات حتى الآن.',
         'getClientOrders'=>'تم استرجاع طلبات العميل بنجاح',
     ],
+    'admin_product' =>[
+        'created'=>'تم انشاء المنتج بنجاح.',
+        'updated'=>'تم تعديل المنتج بنجاح.',
+        'get_products'=> 'تم جلب المنتجات بنجاح.',
+        'details_retrieved'=>'تم جلب تفاصيل المنتج بنجاح.',
+        'deleted'=>'تم حذف المنتج بنجاح'
+    ],
     'unauthorized_access'=>'غير مصرح!',
     'get_all_stores'=>'تم جلب جميع المتاجر بنجاح',
     'create_store'=>'تم إنشاء المتجر بنجاح',

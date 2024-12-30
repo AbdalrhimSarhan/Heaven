@@ -47,6 +47,13 @@ return [
         'not found'=>'Favourite product not found.',
         'deleted'=>'Favourite products deleted successfully.'
     ],
+    'admin_product' =>[
+        'created'=>'Product created successfully.',
+        'updated'=>'Product updated successfully.',
+        'get_products'=>'Products retrieved successfully.',
+        'details_retrieved'=>'Product details retrieved successfully.',
+        'deleted'=>'product deleted successfully.'
+    ],
     'unauthorized_access'=>'Unauthorized !',
     'get_all_stores'=>'Get All Stores Successfully',
     'create_store'=>'Create Store Successfully',

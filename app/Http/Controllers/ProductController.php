@@ -66,6 +66,4 @@ class ProductController extends Controller
         __('message.success_search'));
 
     }
-
-
 }

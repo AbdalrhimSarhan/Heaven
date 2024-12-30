@@ -15,6 +15,7 @@ class Product extends Model
         'description_en',  // English description
         'image'
     ];
+
     public function stores()
     {
         return $this->belongsToMany(Store::class, 'store_product')->withPivot('id','price', 'quantity');
