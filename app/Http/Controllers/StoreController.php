@@ -28,12 +28,13 @@ class StoreController extends Controller
         // Fetch category, store, and products
         $category = Category::where('id', $categoryId)->firstOrFail();
         $store = $category->stores()->where('id', $storeId)->firstOrFail();
-        $products = $store->products;
+        $products = $store->products()->withPivot('price', 'quantity')->get();
+
 
         // Return the products with the language parameter
         return ResponseHelper::jsonResponse(
-            ProductResource::collection($products)->additional(['lang' => $language]),
-            __('messages.success')
+            StoreResource::collection($products)->additional(['lang' => $language]),
+            __('message.success')
         );
     }
 

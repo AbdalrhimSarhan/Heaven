@@ -37,7 +37,6 @@ class ProductController extends Controller
 
             $response = ProductResource::make($product)->additional(['lang' => $language])->toArray(request());
 
-            $response['store_product_id'] = $storeProductId;
 
             return ResponseHelper::jsonResponse($response, __('message.success'), 200, true);
 
