@@ -8,10 +8,15 @@ use App\Http\Requests\UpdateQuantityRequest;
 use App\Http\Resources\CartItemResource;
 use App\Models\Cart_item;
 use App\Models\Store_product;
+use App\services\FcmService;
 use Illuminate\Http\Request;
 
 class CartItemController extends Controller
 {
+//    private $fcmservice;
+//    public function __construct(FcmService  $fcmservice){
+//        $this->fcmservice = $fcmservice;
+//    }
     public function addToCart(CartStoreRequest $request){
 
         $product = $request->validated();
@@ -145,6 +150,7 @@ class CartItemController extends Controller
             $storeProduct->increment('quantity', $cartItem->quantity);
             $cartItem->delete();
 
+           // $this->fcmservice->sendNotification(auth()->fcm_token,'Heaven App',__('message.cart.destroy_success'));
             return ResponseHelper::jsonResponse(null, __('message.cart.destroy_success'));
         } catch (\Exception $e) {
             return ResponseHelper::jsonResponse(null, $e->getMessage(), 500, false);

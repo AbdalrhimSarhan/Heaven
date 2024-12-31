@@ -19,22 +19,25 @@ class ProductFactory extends Factory
     {
         // Get all images in the 'Store_image' directory
         $storesImages = Storage::disk('public')->files('Store_image');
+
+        // Pick a random image or fallback to placeholder/default
         $randomImage = !empty($storesImages)
             ? $storesImages[array_rand($storesImages)] // Pick a random image
             : 'Store_image/placeholder.jpg'; // Fallback to placeholder image
+
         if (!Storage::disk('public')->exists($randomImage)) {
             $randomImage = 'Store_image/default.jpg'; // Fallback to 'default.jpg'
         }
-        $imageUrl = Storage::url($randomImage);
 
         return [
             'name_en' => $this->faker->word,
             'name_ar' => $this->faker->word,
             'description_en' => $this->faker->sentence,
             'description_ar' => $this->faker->sentence,
-            'image' => $imageUrl, // Correctly assign the full image URL
+            'image' => $randomImage, // Store only the file path
         ];
     }
+
 
 
 }

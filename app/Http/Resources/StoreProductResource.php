@@ -26,7 +26,7 @@ class StoreProductResource extends JsonResource
                 $storeProduct = $store->pivot;
                 $favorite = FavouriteProduct::where('stores_product_id', $store->pivot->id)
                     ->where('user_id', $user)
-                    ->exists(); // Simplified the favorite check
+                    ->exists();
                 return [
                     'store_id' => $store->id,
                     'store_name' => $store->{"name_{$language}"},

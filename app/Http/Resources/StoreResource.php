@@ -17,7 +17,6 @@ class StoreResource extends JsonResource
     public function toArray(Request $request): array
     {
         $language = app()->getLocale();
-        $imageUrl = Storage::url($this->image);
         $data = [
             'id' => $this->id,
             'name' => $language === 'ar' ? $this->name_ar : $this->name_en,
@@ -34,7 +33,7 @@ class StoreResource extends JsonResource
                 return $image;
             }else {
                 $main_image = asset($image);
-                return Storage::url($image);
+                return Storage::url($main_image);
             }
         }
         return null;

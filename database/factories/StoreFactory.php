@@ -21,19 +21,16 @@ class StoreFactory extends Factory
         // Get all images in the 'Store_image' directory
         $storesImages = Storage::disk('public')->files('Store_image');
 
-        // Ensure we have images and select one or use a placeholder
+        // Pick a random image or fallback to placeholder/default
         $randomImage = !empty($storesImages)
             ? $storesImages[array_rand($storesImages)] // Pick a random image
             : 'Store_image/placeholder.jpg'; // Default image path
-
-        // Generate the URL for the selected image
-        $imageUrl = Storage::url($randomImage);
 
         return [
             'category_id' => Category::inRandomOrder()->first()->id, // Pick a random category
             'name_en' => $this->faker->name,
             'name_ar' => $this->faker->name,
-            'image' => $imageUrl, // Correctly assign the full image URL
+            'image' => $randomImage, // Store only the file path
             'location_en' => $this->faker->address,
             'location_ar' => $this->faker->address,
         ];

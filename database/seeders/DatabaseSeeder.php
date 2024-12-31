@@ -19,10 +19,10 @@ class DatabaseSeeder extends Seeder
         $this->call(CategorySeeder::class);
 
         // Create stores with fixed categories in smaller batches
-        $stores = Store::factory(10)->create(); // Create 10 stores
+        $stores = Store::factory(50)->create(); // Create 10 stores
 
         // Create products one by one to avoid holding large collections in memory
-        $products = Product::factory(20)->create(); // Create 50 products
+        $products = Product::factory(100)->create(); // Create 50 products
 
         // Loop through each store and attach products in smaller chunks to avoid high memory usage
         foreach ($stores as $store) {

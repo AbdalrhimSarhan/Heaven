@@ -88,8 +88,9 @@ class UserController extends Controller
     public function me()
     {
         $user = auth()->user()->only('id','first_name','last_name','mobile','location','image');
+        $user['image'] = Storage::url($user['image']);
 //        return response()->json(auth()->user());
-        return ResponseHelper::jsonResponse($user,auth()->user()->first_name.' '.auth()->user()->last_name.__(' message.profile'));
+        return ResponseHelper::jsonResponse($user,auth()->user()->first_name.' '.auth()->user()->last_name.' '.__('message.profile'));
     }
 
     /**
