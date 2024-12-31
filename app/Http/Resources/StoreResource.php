@@ -30,11 +30,13 @@ class StoreResource extends JsonResource
     private function getImageUrl($image): ?string
     {
         if ($image) {
-            return str_starts_with($image, 'https://via.placeholder.com')
-                ? $image
-                : config('app.url').'/storage/'.$image;
+            if( str_starts_with($image, 'https://via.placeholder.com') ){
+                return $image;
+            }else {
+                $main_image = asset($image);
+                return Storage::url($image);
+            }
         }
-
         return null;
     }
 }
