@@ -19,18 +19,12 @@ class ProductFactory extends Factory
     {
         // Get all images in the 'Store_image' directory
         $storesImages = Storage::disk('public')->files('Store_image');
-
-        // Ensure there is at least one image, or fall back to a default placeholder
         $randomImage = !empty($storesImages)
             ? $storesImages[array_rand($storesImages)] // Pick a random image
             : 'Store_image/placeholder.jpg'; // Fallback to placeholder image
-
-        // Check if the placeholder image exists; if not, create a valid default path
         if (!Storage::disk('public')->exists($randomImage)) {
             $randomImage = 'Store_image/default.jpg'; // Fallback to 'default.jpg'
         }
-
-        // Generate the public URL for the selected image
         $imageUrl = Storage::url($randomImage);
 
         return [

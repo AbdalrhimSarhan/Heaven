@@ -50,7 +50,7 @@ class ProductController extends Controller
         $language = app()->getLocale();
         $product = Product::where("name_{$language}", 'like', '%' . $name . '%')
             ->with(['stores.category', 'stores' => function ($query) {
-            $query->withPivot('price', 'quantity'); // Include pivot fields
+            $query->withPivot('id','price', 'quantity');
         }])->get();;
 
         if($product->isEmpty()){
