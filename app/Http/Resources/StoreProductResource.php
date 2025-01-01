@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Models\FavouriteProduct;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class StoreProductResource extends JsonResource
 {
@@ -21,7 +22,7 @@ class StoreProductResource extends JsonResource
         return [
             'product_id' => $this->id,
             'product_name' => $this->{"name_{$language}"},
-            'image' => $this->image,
+            'image' => Storage::url($this->image),
             'stores' => $this->stores->map(function ($store) use ( $user,$language) {
                 $storeProduct = $store->pivot;
                 $favorite = FavouriteProduct::where('stores_product_id', $store->pivot->id)

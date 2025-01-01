@@ -87,8 +87,9 @@ class UserController extends Controller
      */
     public function me()
     {
-        $user = auth()->user()->only('id','first_name','last_name','mobile','location','image');
+        $user = auth()->user()->only('id','first_name','last_name','mobile','location','image','created_at');
         $user['image'] = Storage::url($user['image']);
+        $user['created_at'] = $user['created_at']->format('Y-m-d');
 //        return response()->json(auth()->user());
         return ResponseHelper::jsonResponse($user,auth()->user()->first_name.' '.auth()->user()->last_name.' '.__('message.profile'));
     }
@@ -101,7 +102,6 @@ class UserController extends Controller
     public function logout()
     {
         auth()->logout();
-
         return ResponseHelper::jsonResponse(null,__('message.logout'));
     }
 

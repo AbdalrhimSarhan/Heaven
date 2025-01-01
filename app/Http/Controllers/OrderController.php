@@ -27,12 +27,12 @@ class OrderController extends Controller
                 return $item->quantity * $item->store_product->price; // Assuming storeProduct has price
             }),
         ]);
-
+      //  $order=
         // Update cart items to associate them with the new order
         Cart_item::where('user_id', $userId)->whereNull('order_id')->update([
             'order_id' => $order->id,
         ]);
-        return ResponseHelper::jsonResponse($order,__('message.order.success'),200,false);
+        return ResponseHelper::jsonResponse($order,__('message.order.success'),200,true);
     }
 
     public function getClientOrders()

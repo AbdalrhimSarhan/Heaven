@@ -26,6 +26,11 @@ class User extends Authenticatable implements JWTSubject
         'image',
     ];
 
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d', // Globally set the format
+    ];
+
+
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *

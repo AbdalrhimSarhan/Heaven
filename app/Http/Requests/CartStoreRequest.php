@@ -23,22 +23,27 @@ class CartStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'store_id' => [ 'required', 'exists:store_product,id',],
-            'product_id' => [ 'required', 'exists:store_product,id',],
+            'store_id' => ['required', 'exists:stores,id'],
+            'product_id' => ['required', 'exists:products,id'],
             'quantity' => [
                 'required',
                 'integer',
                 'min:1',
                 function ($attribute, $value, $fail) {
-                    $storeProduct = Store_product::find(request('store_product_id'));
+                    $storeProduct = Store_product::where('product_id', request('product_id'))
+                        ->where('store_id', request('store_id'))
+                        ->first();
 
-                    if ($storeProduct && $value > $storeProduct->quantity) {
+                    if (!$storeProduct) {
+                        $fail(__('message.cart.store')); // Store-product relationship not found
+                    } elseif ($storeProduct->quantity < $value) {
                         $fail("The requested quantity exceeds the available stock of {$storeProduct->quantity}.");
                     }
                 },
             ],
         ];
     }
+
 
     public function attributes(): array
     {

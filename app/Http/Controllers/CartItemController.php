@@ -17,41 +17,52 @@ class CartItemController extends Controller
 //    public function __construct(FcmService  $fcmservice){
 //        $this->fcmservice = $fcmservice;
 //    }
-    public function addToCart(CartStoreRequest $request){
-
+    public function addToCart(CartStoreRequest $request)
+    {
         $product = $request->validated();
+
         try {
-        $storeProduct = Store_product::where('product_id', $product['product_id'])
-            ->where('store_id', $product['store_id'])
-            ->firstOrFail();
+            $storeProduct = Store_product::where('product_id', $product['product_id'])
+                ->where('store_id', $product['store_id'])
+                ->firstOrFail();
 
+            if ($product['quantity'] > $storeProduct->quantity) {
+                return ResponseHelper::jsonResponse(
+                    null,
+                    "The requested quantity exceeds the available stock of {$storeProduct->quantity}.",
+                    400,
+                    false
+                );
+            }
+            $cartItem = Cart_item::create([
+                'user_id' => auth()->id(),
+                'store_product_id' => $storeProduct->id,
+                'quantity' => $product['quantity'],
+                'order_id' => null,
+            ]);
+            $storeProduct->decrement('quantity', $product['quantity']);
 
-        $cartItem = Cart_item::create([
-            'user_id' => auth()->id(),
-            'store_product_id' => $product['store_product_id'],
-            'quantity' => $product['quantity'],
-            'order_id' => null, // Ensuring it's null initially
-        ]);
-
-        $storeProduct->decrement('quantity', $product['quantity']);
-
-        return ResponseHelper::jsonResponse(['the product is added to cart'=>$cartItem,
-            'total_price' => $storeProduct->price * $product['quantity']
-            ,], __('message.cart.success'));
-            } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            // Handle the case where the store_product is not found
-        return ResponseHelper::jsonResponse(null, __('message.cart.store') ,404, false);
+            return ResponseHelper::jsonResponse(
+                [
+                    'the product is added to cart' => $cartItem->only('user_id', 'store_product_id', 'quantity', 'id'),
+                    'total_price' => $storeProduct->price * $product['quantity'],
+                ],
+                __('message.cart.success')
+            );
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return ResponseHelper::jsonResponse(null, __('message.cart.store'), 404, false);
         } catch (\Exception $e) {
-            // Handle any other exceptions
             return ResponseHelper::jsonResponse(null, $e->getMessage(), 500, false);
         }
     }
+
 
     public function getCartItems()
     {
         // Fetch cart items for the user
         $cartItems = Cart_item::with(['store_product.product'])
             ->where('user_id', auth()->id())
+            ->where('order_id', null)
             ->get();
 
         // Check if the cart is empty
