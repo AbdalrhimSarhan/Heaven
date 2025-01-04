@@ -19,29 +19,29 @@ class StoreProductResource extends JsonResource
         $language = app()->getLocale();
         $user = auth()->id();
 
-        return [
-            'product_id' => $this->id,
-            'product_name' => $this->{"name_{$language}"},
-            'image' => Storage::url($this->image),
-            'stores' => $this->stores->map(function ($store) use ( $user,$language) {
-                $storeProduct = $store->pivot;
-                $favorite = FavouriteProduct::where('stores_product_id', $store->pivot->id)
-                    ->where('user_id', $user)
-                    ->exists();
-                return [
-                    'store_id' => $store->id,
-                    'store_name' => $store->{"name_{$language}"},
-                    'location' => $store->{"location_{$language}"},
-                    'image' => $store->image,
-                    'price' => $storeProduct->price,
-                    'quantity' => $storeProduct->quantity,
-                    'favorite' => $favorite,
-                    'category' => [
-                        'category_id' => $store->category->id,
-                        'category_name' => $store->category->{"name_{$language}"},
-                    ],
-                ];
-            }),
-        ];
+        return $this->stores->map(function ($store) use ($language, $user) {
+            $storeProduct = $store->pivot;
+            $favorite = FavouriteProduct::where('stores_product_id', $store->pivot->id)
+                ->where('user_id', $user)
+                ->exists();
+
+            return [
+                'product_id' => $this->id,
+                'product_name' => $this->{"name_{$language}"},
+                'image' => Storage::url($this->image),
+                'store_id' => $store->id,
+                'store_name' => $store->{"name_{$language}"},
+                'location' => $store->{"location_{$language}"},
+                'store_image' => $store->image,
+                'price' => $storeProduct->price,
+                'quantity' => $storeProduct->quantity,
+                'favorite' => $favorite,
+                'category' => [
+                    'category_id' => $store->category->id,
+                    'category_name' => $store->category->{"name_{$language}"},
+                ],
+            ];
+        });
     }
+
 }
