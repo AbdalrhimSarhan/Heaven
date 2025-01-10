@@ -22,17 +22,15 @@ class ProductResource extends JsonResource
         $language = app()->getLocale();
         $user = auth()->id();
 
-        // Check if store_product data is available
         $store_product = $this->storeProduct ?? $this->pivot;
 
-        // Ensure $store_product is an object before accessing its properties
         if (!is_object($store_product)) {
             $store_product = (object) ['price' => null, 'quantity' => null, 'id' => null];
         }
 
         $favorite = FavouriteProduct::where('stores_product_id', $store_product->id)
             ->where('user_id', $user)
-            ->exists(); // Simplified the favorite check
+            ->exists();
 
         $name = $language === 'ar' ? $this->name_ar : $this->name_en;
         $description = $language === 'ar' ? $this->description_ar : $this->description_en;
@@ -44,8 +42,8 @@ class ProductResource extends JsonResource
             'name' => $name,
             'description' => $description,
             'image' => asset($imageUrl) ?? null,
-            'price' => $store_product->price, // Safely access price
-            'quantity' => $store_product->quantity, // Safely access quantity
+            'price' => $store_product->price,
+            'quantity' => $store_product->quantity,
             'favorite' => $favorite,
             'stores_product_id' => $store_product->id,
         ];

@@ -28,7 +28,7 @@ class  Register extends FormRequest
                 'required',
                 'numeric',
                 'digits:10',
-                'regex:/^09[0-9]{8}$/', // Mobile must start with "09" and have 10 digits
+                'regex:/^09[0-9]{8}$/',
                 'unique:users,mobile'
             ],
             'image' => 'sometimes|nullable|image',

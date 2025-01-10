@@ -24,12 +24,11 @@ class ProductController extends Controller
             $store = $category->stores()->where('stores.id', $storeId)->firstOrFail();
 
             $product = $store->products()->where('products.id', $productId)->firstOrFail();
-
-            // Get store_product ID from the pivot table
+            // get store_product_id
             $storeProductId = DB::table('store_product')
                 ->where('store_id', $storeId)
                 ->where('product_id', $productId)
-                ->value('id'); // Assuming 'id' is the primary key
+                ->value('id');
 
             if (!$storeProductId) {
                 return ResponseHelper::jsonResponse(null, __('message.product_not_found'), 404, false);

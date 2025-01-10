@@ -42,12 +42,15 @@ class CartItemController extends Controller
             ]);
             $storeProduct->decrement('quantity', $product['quantity']);
 
+            $cartItemData = json_encode($cartItem->only('user_id', 'store_product_id', 'quantity', 'id'));
+
+            $data = array_merge(
+                $cartItem->only('user_id', 'store_product_id', 'quantity', 'id'),
+                ['total_price' => $storeProduct->price * $product['quantity']]
+            );
             return ResponseHelper::jsonResponse(
-                [
-                    'the product is added to cart' => $cartItem->only('user_id', 'store_product_id', 'quantity', 'id'),
-                    'total_price' => $storeProduct->price * $product['quantity'],
-                ],
-                __('message.cart.success')
+                $data,
+                __('message.cart.success'),200,true
             );
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return ResponseHelper::jsonResponse(null, __('message.cart.store'), 404, false);
@@ -59,20 +62,25 @@ class CartItemController extends Controller
 
     public function getCartItems()
     {
-        // Fetch cart items for the user
         $cartItems = Cart_item::with(['store_product.product'])
             ->where('user_id', auth()->id())
             ->where('order_id', null)
             ->get();
 
-        // Check if the cart is empty
         if ($cartItems->isEmpty()) {
             return ResponseHelper::jsonResponse([], __('message.show_fail'), 404);
         }
 
-        // Return the cart items using CartItemResource
-        return ResponseHelper::jsonResponse(
+        $allTotalPrice = $cartItems->sum(function ($item) {
+            return $item->quantity * $item->store_product->price;
+        });
+
+        $data = array_merge([
             CartItemResource::collection($cartItems),
+           [ 'total_price' => $allTotalPrice ],
+        ]);
+        return ResponseHelper::jsonResponse(
+          $data ,
         __('message.show_success'),
             200
         );
@@ -82,41 +90,34 @@ class CartItemController extends Controller
     {
         $language = app()->getLocale();
         $validQuantity = $request->validated();
-        // Find the cart item by ID
         $cartItem = Cart_item::find($cartItemId);
 
         if (!$cartItem) {
             return ResponseHelper::jsonResponse([], __('message.cart.update_fail'), 404,false);
         }
 
-        // Get the related store product
         $storeProduct = $cartItem->store_product;
 
         if (!$storeProduct) {
             return ResponseHelper::jsonResponse([], __('message.cart.stores'), 404,false);
         }
 
-        // New and old quantity
         $oldQuantity = $cartItem->quantity;
         $newQuantity = $validQuantity['quantity'];
         $quantityDifference = $newQuantity - $oldQuantity;
 
-        // Prevent invalid negative changes in stock
         if ($quantityDifference < 0) {
             $absoluteDifference = abs($quantityDifference);
-            $storeProduct->quantity += $absoluteDifference; // Return the extra stock to the store
+            $storeProduct->quantity += $absoluteDifference;
         } else {
-            // Ensure sufficient stock is available
             if ($storeProduct->quantity < $quantityDifference) {
                 return ResponseHelper::jsonResponse([], __('message.cart.less_quantity'), 400,false);
             }
-            $storeProduct->quantity -= $quantityDifference; // Reduce the store stock
+            $storeProduct->quantity -= $quantityDifference;
         }
 
-        // Save the updated store product quantity
         $storeProduct->save();
 
-        // Update the cart item's quantity
         $cartItem->quantity = $newQuantity;
         $cartItem->save();
 
@@ -124,7 +125,6 @@ class CartItemController extends Controller
             ? $storeProduct->product->name_ar
             : $storeProduct->product->name_en;
 
-        // Return a success response
         return ResponseHelper::jsonResponse([
             'updated_cart_item' => [
                 'id' => $cartItem->id,
