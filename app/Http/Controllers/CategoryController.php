@@ -69,8 +69,8 @@ class CategoryController extends Controller
             if( str_starts_with($image, 'https://via.placeholder.com') ){
                 return $image;
             }else {
-                $main_image = asset($image);
-                return Storage::url($image);
+                $main_image = Storage::url($image);
+                return asset($main_image);
             }
 
         }

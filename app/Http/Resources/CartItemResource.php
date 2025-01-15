@@ -18,6 +18,7 @@ class CartItemResource extends JsonResource
         $language = app()->getLocale();
         $imageUrl = Storage::url($this->store_product->product->image);
         return [
+            'id'=>$this->id,
             'product_name' =>  $language === 'ar' ? $this->store_product->product->name_ar : $this->store_product->product->name_en,
             'product_image' => asset($imageUrl),
             'quantity' => $this->quantity,
