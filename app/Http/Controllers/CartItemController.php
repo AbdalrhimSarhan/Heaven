@@ -81,7 +81,7 @@ class CartItemController extends Controller
         ]);
         return ResponseHelper::jsonResponse(
           $data ,
-        __('message.show_success'),
+        __('message.cart.show_success'),
             200
         );
     }
