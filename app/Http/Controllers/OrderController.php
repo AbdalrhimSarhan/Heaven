@@ -51,6 +51,6 @@ class OrderController extends Controller
         // Return the orders using OrderResource
         return ResponseHelper::jsonResponse([
             'orders' => OrderResource::collection($orders)->additional(['lang' => $language])->toArray(request()),
-        ], __('message.getClientOrders'), 200);
+        ], __('message.order.getClientOrders'), 200);
     }
 }
