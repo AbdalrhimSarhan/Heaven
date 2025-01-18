@@ -25,6 +25,7 @@ class FavouriteProductResource extends JsonResource
 
         return [
             'id' => $this->id,
+            'product_id'=>$this->store_product->product->id,
             'name' => $name,
             'description' => $description,
             'image' => asset($imageUrl) ?? null,
