@@ -21,7 +21,14 @@ class AdminStoreController extends Controller
 
     public function createNewStore(CreateStoreRequest  $request){
         $newStore = $request->validated();
+        $categoryMapping = [
+            'Restaurant' => 1,
+            'Perfumes' => 2,
+            'Clothes' => 3,
+            'Electronics' => 4,
+        ];
 
+        $categoryId = $categoryMapping[$newStore['category']];
         if ($request->hasFile('image')) {
             $newStore['image'] = $request->file('image')->store('Store_image');
         }
@@ -29,7 +36,7 @@ class AdminStoreController extends Controller
             'name_en' => $newStore['name_en'],
             'name_ar' => $newStore['name_ar'],
             'image' => $newStore['image'],
-            'category_id' => $newStore['category_id'],
+            'category_id' => $categoryId,
             'location_en' => $newStore['location_en'],
             'location_ar' => $newStore['location_ar'],
         ]);

@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\FavouriteProduct;
+use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -31,6 +32,7 @@ class ProductResource extends JsonResource
         $favorite = FavouriteProduct::where('stores_product_id', $store_product->id)
             ->where('user_id', $user)
             ->exists();
+        $store = Store::where('id', $store_product->store_id)->first();
 
         $name = $language === 'ar' ? $this->name_ar : $this->name_en;
         $description = $language === 'ar' ? $this->description_ar : $this->description_en;
@@ -46,6 +48,7 @@ class ProductResource extends JsonResource
             'quantity' => $store_product->quantity,
             'favorite' => $favorite,
             'stores_product_id' => $store_product->id,
+            'name_of_store'=> $store->{"name_{$language}"},
         ];
     }
 

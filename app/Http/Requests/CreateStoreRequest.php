@@ -24,7 +24,7 @@ class CreateStoreRequest extends FormRequest
         return [
             'name_en'=>'required|string|min:3|max:100',
             'name_ar'=>'required|string|min:3|max:100',
-            'category_id'=>'required|integer|exists:categories,id',
+            'category' => 'required|string|in:Restaurant,Perfumes,Clothes,Electronics',
             'image'=>'required|image',
             'location_en'=>'required|string|min:3|max:100',
             'location_ar'=>'required|string|min:3|max:100',
