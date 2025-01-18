@@ -24,7 +24,7 @@ class FavouriteProductResource extends JsonResource
         $imageUrl = Storage::url($this->store_product->product->image);
 
         return [
-            'id' => $this->store_product->product_id,
+            'id' => $this->id,
             'name' => $name,
             'description' => $description,
             'image' => asset($imageUrl) ?? null,
