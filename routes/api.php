@@ -71,14 +71,14 @@ Route::middleware(['auth:api', 'admin','setLang'])->group(function () {
         app()->setLocale($request->header('lang','en'));
         return ResponseHelper::jsonResponse('',__('message.store_not_found'), 404,false);
     });
-    Route::delete('/destroyStore/{store}',[AdminStoreController::class,'destroyStore'])->missing(function(Request $request){
+    Route::delete('/destroyStore/{store}',[AdminStozreController::class,'destroyStore'])->missing(function(Request $request){
         app()->setLocale($request->header('lang','en'));
         return ResponseHelper::jsonResponse('',__('message.store_not_found'), 404,false);
     });
 
     Route::post('/createCategory',[CategoryController::class,'createNewCategory']);
 
-    Route::post('/stores/{storeId}/products', [AdminProductController::class, 'createProduct']);
+    Route::post('/stores/{storeId}/    ', [AdminProductController::class, 'createProduct']);
     Route::post('/stores/{store_id}/products/{product_id}', [AdminProductController::class, 'updateProduct']);
     Route::get('/stores/{storeId}/products', [AdminProductController::class, 'getStoreProducts']);
     Route::get('/stores/{storeId}/products/{productId}', [AdminProductController::class, 'showProductDetails']);

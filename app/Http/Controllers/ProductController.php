@@ -24,7 +24,7 @@ class ProductController extends Controller
             $store = $category->stores()->where('stores.id', $storeId)->firstOrFail();
 
             $product = $store->products()->where('products.id', $productId)->firstOrFail();
-            // get store_product_id
+
             $storeProductId = DB::table('store_product')
                 ->where('store_id', $storeId)
                 ->where('product_id', $productId)

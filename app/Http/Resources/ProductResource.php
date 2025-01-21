@@ -37,7 +37,7 @@ class ProductResource extends JsonResource
         $name = $language === 'ar' ? $this->name_ar : $this->name_en;
         $description = $language === 'ar' ? $this->description_ar : $this->description_en;
 
-        $imageUrl = Storage::url($this->product_image);
+        $imageUrl = Storage::url($this->image);
 
         return [
             'id' => $this->id,
