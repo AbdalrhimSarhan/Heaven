@@ -138,4 +138,4 @@
         </div>
     </body>
 </html>
-<?php /**PATH C:\xampp\htdocs\Programing_languages\resources\views/welcome.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\laravel-projects\Programing_languages\resources\views/welcome.blade.php ENDPATH**/ ?>

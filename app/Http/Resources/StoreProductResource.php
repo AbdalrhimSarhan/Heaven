@@ -32,7 +32,7 @@ class StoreProductResource extends JsonResource
                 'store_id' => $store->id,
                 'store_name' => $store->{"name_{$language}"},
                 'location' => $store->{"location_{$language}"},
-                'store_image' => $store->image,
+                'store_image' => Storage::url($store->image),
                 'price' => $storeProduct->price,
                 'quantity' => $storeProduct->quantity,
                 'favorite' => $favorite,

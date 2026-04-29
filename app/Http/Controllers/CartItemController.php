@@ -10,6 +10,8 @@ use App\Models\Cart_item;
 use App\Models\Store_product;
 use App\services\FcmService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class CartItemController extends Controller
 {
@@ -17,14 +19,31 @@ class CartItemController extends Controller
 //    public function __construct(FcmService  $fcmservice){
 //        $this->fcmservice = $fcmservice;
 //    }
+
     public function addToCart(CartStoreRequest $request)
     {
+        $startTime = microtime(true);
         $product = $request->validated();
+
+        // ⚠️ LOGGING: Track entry point
+        Log::warning('⚠️ [BASIC - NO LOCK] Adding to cart START', [
+            'user_id' => auth()->id(),
+            'product_id' => $product['product_id'],
+            'store_id' => $product['store_id'],
+            'requested_quantity' => $product['quantity'],
+            'timestamp' => now()->toDateTimeString(),
+        ]);
 
         try {
             $storeProduct = Store_product::where('product_id', $product['product_id'])
                 ->where('store_id', $product['store_id'])
                 ->firstOrFail();
+
+            // Log current inventory state
+            Log::info('📊 [BASIC] Current Stock Level', [
+                'store_product_id' => $storeProduct->id,
+                'current_quantity' => $storeProduct->quantity,
+            ]);
 
             if ($product['quantity'] > $storeProduct->quantity) {
                 return ResponseHelper::jsonResponse(
@@ -34,13 +53,22 @@ class CartItemController extends Controller
                     false
                 );
             }
+
             $cartItem = Cart_item::create([
                 'user_id' => auth()->id(),
                 'store_product_id' => $storeProduct->id,
                 'quantity' => $product['quantity'],
                 'order_id' => null,
             ]);
+
+            // ⚠️ CRITICAL SECTION: No lock - RACE CONDITION RISK HERE
             $storeProduct->decrement('quantity', $product['quantity']);
+
+            Log::info('📉 [BASIC] Inventory Decremented', [
+                'store_product_id' => $storeProduct->id,
+                'quantity_decreased' => $product['quantity'],
+                'new_quantity' => $storeProduct->fresh()->quantity,
+            ]);
 
             $cartItemData = json_encode($cartItem->only('user_id', 'store_product_id', 'quantity', 'id'));
 
@@ -48,16 +76,85 @@ class CartItemController extends Controller
                 $cartItem->only('user_id', 'store_product_id', 'quantity', 'id'),
                 ['total_price' => $storeProduct->price * $product['quantity']]
             );
+
+            $executionTime = (microtime(true) - $startTime) * 1000; // Convert to ms
+
+            // ✅ Log success with performance metrics
+            Log::info('✅ [BASIC] Add to Cart SUCCESS', [
+                'cart_item_id' => $cartItem->id,
+                'execution_time_ms' => number_format($executionTime, 2),
+                'risk_level' => 'HIGH - No Concurrency Control',
+            ]);
+
             return ResponseHelper::jsonResponse(
                 $data,
-                __('message.cart.success'),200,true
+                __('message.cart.success'),
+                200,
+                true
             );
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            Log::error('❌ [BASIC] Product not found', ['error' => $e->getMessage()]);
             return ResponseHelper::jsonResponse(null, __('message.cart.store'), 404, false);
         } catch (\Exception $e) {
+            Log::error('❌ [BASIC] Exception occurred', ['error' => $e->getMessage()]);
             return ResponseHelper::jsonResponse(null, $e->getMessage(), 500, false);
         }
     }
+
+   
+    public function addToCartACID(CartStoreRequest $request)
+{
+    $startTime = microtime(true);
+    $product = $request->validated();
+
+    try {
+        $result = DB::transaction(function () use ($product) {
+
+            $storeProduct = Store_product::where('product_id', $product['product_id'])
+                ->where('store_id', $product['store_id'])
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($storeProduct->quantity < $product['quantity']) {
+                throw new \Exception('Insufficient stock');
+            }
+
+            // usleep(400000);
+
+            $storeProduct->decrement('quantity', $product['quantity']);
+
+            $cartItem = Cart_item::create([
+                'user_id' => auth()->id(),
+                'store_product_id' => $storeProduct->id,
+                'quantity' => $product['quantity'],
+                'order_id' => null,
+            ]);
+
+            return [
+                'cart' => $cartItem,
+                'stock' => $storeProduct->fresh()->quantity
+            ];
+        });
+
+        return ResponseHelper::jsonResponse([
+            'cart_item_id' => $result['cart']->id,
+            'remaining_stock' => $result['stock'],
+            'metrics' => [
+                'execution_time_ms' => round((microtime(true)-$startTime)*1000,2),
+                'memory_usage_kb' => round(memory_get_peak_usage(true)/1024,2),
+                'strategy' => 'Requirement#8 Full ACID Transaction',
+            ]
+        ], 'Cart item added with full ACID transaction', 200, true);
+
+    } catch (\Exception $e) {
+        return ResponseHelper::jsonResponse([
+            'metrics' => [
+                'execution_time_ms' => round((microtime(true)-$startTime)*1000,2),
+                'strategy' => 'Requirement#8 Full ACID Transaction',
+            ]
+        ], $e->getMessage(), 500, false);
+    }
+}
 
 
     public function getCartItems()
@@ -77,11 +174,11 @@ class CartItemController extends Controller
 
         $data = array_merge([
             CartItemResource::collection($cartItems),
-           [ 'total_price' => $allTotalPrice ],
+            ['total_price' => $allTotalPrice],
         ]);
         return ResponseHelper::jsonResponse(
-          $data ,
-        __('message.cart.show_success'),
+            $data,
+            __('message.cart.show_success'),
             200
         );
     }
@@ -93,13 +190,13 @@ class CartItemController extends Controller
         $cartItem = Cart_item::find($cartItemId);
 
         if (!$cartItem) {
-            return ResponseHelper::jsonResponse([], __('message.cart.update_fail'), 404,false);
+            return ResponseHelper::jsonResponse([], __('message.cart.update_fail'), 404, false);
         }
 
         $storeProduct = $cartItem->store_product;
 
         if (!$storeProduct) {
-            return ResponseHelper::jsonResponse([], __('message.cart.stores'), 404,false);
+            return ResponseHelper::jsonResponse([], __('message.cart.stores'), 404, false);
         }
 
         $oldQuantity = $cartItem->quantity;
@@ -111,7 +208,7 @@ class CartItemController extends Controller
             $storeProduct->quantity += $absoluteDifference;
         } else {
             if ($storeProduct->quantity < $quantityDifference) {
-                return ResponseHelper::jsonResponse([], __('message.cart.less_quantity'), 400,false);
+                return ResponseHelper::jsonResponse([], __('message.cart.less_quantity'), 400, false);
             }
             $storeProduct->quantity -= $quantityDifference;
         }
@@ -135,7 +232,6 @@ class CartItemController extends Controller
             ],
             'remaining_stock' => $storeProduct->quantity,
         ], __('message.cart.find_quantity'), 200);
-
     }
 
     public function destroy($cartItemId)
@@ -148,8 +244,8 @@ class CartItemController extends Controller
             }
 
             $storeProductId = $cartItem->store_product_id;
-            if($cartItem->order_id != null){
-                return ResponseHelper::jsonResponse([], __('message.cart.after_confirm'), 404,false);
+            if ($cartItem->order_id != null) {
+                return ResponseHelper::jsonResponse([], __('message.cart.after_confirm'), 404, false);
             }
 
             $storeProduct = Store_product::find($storeProductId);
@@ -161,7 +257,7 @@ class CartItemController extends Controller
             $storeProduct->increment('quantity', $cartItem->quantity);
             $cartItem->delete();
 
-           // $this->fcmservice->sendNotification(auth()->fcm_token,'Heaven App',__('message.cart.destroy_success'));
+            // $this->fcmservice->sendNotification(auth()->fcm_token,'Heaven App',__('message.cart.destroy_success'));
             return ResponseHelper::jsonResponse(null, __('message.cart.destroy_success'));
         } catch (\Exception $e) {
             return ResponseHelper::jsonResponse(null, $e->getMessage(), 500, false);
