@@ -7,6 +7,8 @@ let Status409 = new Counter('status_409');
 let Status401 = new Counter('status_401');
 let Status404 = new Counter('status_404');
 let Status500 = new Counter('status_500');
+let Status429 = new Counter('status_429');
+let Status400 = new Counter('status_400');
 let StatusOther = new Counter('status_other');
 
 export let options = {
@@ -19,10 +21,10 @@ export let options = {
     ],
 };
 
-const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vcHJvZ3JhbWluZ19sYW5ndWFnZXMubG9jYWxob3N0L2FwaS9hdXRoL2xvZ2luIiwiaWF0IjoxNzc3NTUwODIyLCJleHAiOjE3Nzc1NTQ0MjIsIm5iZiI6MTc3NzU1MDgyMiwianRpIjoiOWpXdWkwOGxFYVpPYlQ0WSIsInN1YiI6IjIiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.S7KdlhtGug8x_1Gcq8kk-s7QVjcpAHQkB2vlZ3pTo9A';
+const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vcHJvZ3JhbWluZ19sYW5ndWFnZXMubG9jYWxob3N0L2FwaS9hdXRoL2xvZ2luIiwiaWF0IjoxNzc3NTU1Njk2LCJleHAiOjE3Nzc1NTkyOTYsIm5iZiI6MTc3NzU1NTY5NiwianRpIjoibllxT2NDSTRvZzR6ZmFFbSIsInN1YiI6IjIiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.CQCsaWY_61JEJxYJiTirHT13-2wQUBFkYIS03s3IW3c';
 const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
 const payload = JSON.stringify({ product_id: 1, store_id: 1, quantity: 1 });
-const endpoint = 'http://programing_languages.localhost/api/auth/cart/integrity';
+const endpoint = 'http://programing_languages.localhost/api/auth/cart';
 // const endpoint = 'http://programing_languages.localhost/api/auth/cart';
 
 
@@ -39,6 +41,10 @@ export default function () {
         Status404.add(1);
     } else if (res.status === 500) {
         Status500.add(1);
+    } else if (res.status === 429) {
+        Status429.add(1);
+    } else if (res.status === 400) {
+        Status400.add(1);
     } else {
         StatusOther.add(1);
     }
