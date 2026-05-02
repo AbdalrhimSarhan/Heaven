@@ -85,7 +85,7 @@ class GenerateInvoiceJob implements ShouldQueue
         ]);
 
         // Simulate heavy invoice generation.
-        sleep(2);
+        sleep(3);
 
         /*
          |------------------------------------------------------------
@@ -99,7 +99,7 @@ class GenerateInvoiceJob implements ShouldQueue
         );
 
         // Simulate slow email sending.
-        sleep(2);
+        sleep(3);
 
         $executionTime = (microtime(true) - $startTime) * 1000;
 

@@ -151,7 +151,7 @@ class OrderController extends Controller
                 'order_id' => $order->id,
                 'user_id' => $userId,
                 'execution_time_ms' => round($executionTime, 2),
-                'queue_enabled' => false,
+                'queue_enabled' => true,
             ]);
 
             return ResponseHelper::jsonResponse(
@@ -244,7 +244,7 @@ class OrderController extends Controller
         ]);
 
         // Simulate heavy invoice generation.
-        sleep(2);
+        sleep(3);
 
         /*
          |------------------------------------------------------------
@@ -258,7 +258,7 @@ class OrderController extends Controller
         );
 
         // Simulate slow email sending.
-        sleep(2);
+        sleep(3);
 
         $executionTime = (microtime(true) - $startTime) * 1000;
 
