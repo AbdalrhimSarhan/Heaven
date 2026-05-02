@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Invoice;
 
 class Order extends Model
 {
@@ -15,6 +16,7 @@ class Order extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
     /**
      * Relationship with Cart Items (hasMany)
      */
@@ -22,4 +24,9 @@ class Order extends Model
     {
         return $this->hasMany(Cart_item::class, 'order_id');
     }
+
+    public function invoice()
+{
+    return $this->hasOne(Invoice::class);
+}
 }

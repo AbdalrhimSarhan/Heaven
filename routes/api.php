@@ -11,6 +11,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -67,7 +68,23 @@ Route::group([
     Route::put('/cart/{cartItemId}', [CartItemController::class, 'updateQuantitiyItem']);
     Route::delete('/cart/{cartItem}', [CartItemController::class, 'destroy']);
 
+
+
+    
+    // ❌ Bad version - synchronous invoice + email, user waits
+    Route::post('/order/sync', [OrderController::class, 'confirmOrderWithoutQueue']);
+
+    // ✅ Improved version - invoice + email handled by Queue
     Route::post('/order',[OrderController::class, 'confirmOrder']);
+    
+    
+    // ❌ Bad version: no queue, no chunks, processes all orders inside request
+    Route::post('/reports/daily-sales/sync', [ReportController::class, 'processDailySalesSync']);
+
+    // ✅ Good version: queue + chunkById
+    Route::post('/reports/daily-sales', [ReportController::class, 'processDailySales']);
+        
+        
     Route::get('/orders', [OrderController::class, 'getClientOrders']);
 
     Route::get('/search/{name}',[ProductController::class, 'search'])->name('product.search');
