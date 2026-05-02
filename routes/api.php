@@ -58,10 +58,9 @@ Route::group([
     // Route::get('/categories/{categoryId}/stores/{storeId}/products', [StoreController::class, 'showProducts']);
     // Route::get('/categories/{categoryId}/stores/{storeId}/products/{productId}', [ProductController::class, 'show']);
 
-    // ❌ Basic Cart - NO CONCURRENCY CONTROL (for performance comparison)
     Route::post('/cart', [CartItemController::class, 'addToCart']);
+    Route::post('/cart/integrity', [CartItemController::class, 'addToCartBasicIntegrity']);
     
-    // ✅ Safe Cart - WITH PESSIMISTIC LOCKING + TRANSACTIONS (Concurrent Safe)
     Route::post('/cart/safe', [CartItemController::class, 'addToCartSafe']);
     
     Route::get('/show/cart', [CartItemController::class, 'getCartItems']);

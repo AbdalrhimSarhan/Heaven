@@ -15,35 +15,20 @@ use Illuminate\Support\Facades\DB;
 
 class CartItemController extends Controller
 {
-//    private $fcmservice;
-//    public function __construct(FcmService  $fcmservice){
-//        $this->fcmservice = $fcmservice;
-//    }
+    //    private $fcmservice;
+    //    public function __construct(FcmService  $fcmservice){
+    //        $this->fcmservice = $fcmservice;
+    //    }
 
     public function addToCart(CartStoreRequest $request)
     {
         $startTime = microtime(true);
         $product = $request->validated();
 
-        // ⚠️ LOGGING: Track entry point
-        Log::warning('⚠️ [BASIC - NO LOCK] Adding to cart START', [
-            'user_id' => auth()->id(),
-            'product_id' => $product['product_id'],
-            'store_id' => $product['store_id'],
-            'requested_quantity' => $product['quantity'],
-            'timestamp' => now()->toDateTimeString(),
-        ]);
-
         try {
             $storeProduct = Store_product::where('product_id', $product['product_id'])
                 ->where('store_id', $product['store_id'])
                 ->firstOrFail();
-
-            // Log current inventory state
-            Log::info('📊 [BASIC] Current Stock Level', [
-                'store_product_id' => $storeProduct->id,
-                'current_quantity' => $storeProduct->quantity,
-            ]);
 
             if ($product['quantity'] > $storeProduct->quantity) {
                 return ResponseHelper::jsonResponse(
@@ -54,6 +39,8 @@ class CartItemController extends Controller
                 );
             }
 
+            $storeProduct->decrement('quantity', $product['quantity']);
+
             $cartItem = Cart_item::create([
                 'user_id' => auth()->id(),
                 'store_product_id' => $storeProduct->id,
@@ -61,14 +48,6 @@ class CartItemController extends Controller
                 'order_id' => null,
             ]);
 
-            // ⚠️ CRITICAL SECTION: No lock - RACE CONDITION RISK HERE
-            $storeProduct->decrement('quantity', $product['quantity']);
-
-            Log::info('📉 [BASIC] Inventory Decremented', [
-                'store_product_id' => $storeProduct->id,
-                'quantity_decreased' => $product['quantity'],
-                'new_quantity' => $storeProduct->fresh()->quantity,
-            ]);
 
             $cartItemData = json_encode($cartItem->only('user_id', 'store_product_id', 'quantity', 'id'));
 
@@ -78,13 +57,6 @@ class CartItemController extends Controller
             );
 
             $executionTime = (microtime(true) - $startTime) * 1000; // Convert to ms
-
-            // ✅ Log success with performance metrics
-            Log::info('✅ [BASIC] Add to Cart SUCCESS', [
-                'cart_item_id' => $cartItem->id,
-                'execution_time_ms' => number_format($executionTime, 2),
-                'risk_level' => 'HIGH - No Concurrency Control',
-            ]);
 
             return ResponseHelper::jsonResponse(
                 $data,
@@ -101,27 +73,32 @@ class CartItemController extends Controller
         }
     }
 
-   
-    public function addToCartACID(CartStoreRequest $request)
-{
-    $startTime = microtime(true);
-    $product = $request->validated();
 
-    try {
-        $result = DB::transaction(function () use ($product) {
+    public function addToCartBasicIntegrity(CartStoreRequest $request)
+    {
+        $startTime = microtime(true);
+        $product = $request->validated();
 
+        try {
             $storeProduct = Store_product::where('product_id', $product['product_id'])
                 ->where('store_id', $product['store_id'])
-                ->lockForUpdate()
                 ->firstOrFail();
 
-            if ($storeProduct->quantity < $product['quantity']) {
-                throw new \Exception('Insufficient stock');
+
+            $affected = DB::table('store_product')
+                ->where('id', $storeProduct->id)
+                ->where('quantity', '>=', $product['quantity'])
+                ->decrement('quantity', $product['quantity']);
+
+            if ($affected === 0) {
+                return ResponseHelper::jsonResponse([
+                    'metrics' => [
+                        'execution_time_ms' => round((microtime(true) - $startTime) * 1000, 2),
+                        'strategy' => 'Atomic Conditional Update',
+                    ]
+                ], 'Insufficient stock or concurrent conflict detected', 409, false);
             }
 
-            // usleep(400000);
-
-            $storeProduct->decrement('quantity', $product['quantity']);
 
             $cartItem = Cart_item::create([
                 'user_id' => auth()->id(),
@@ -130,31 +107,71 @@ class CartItemController extends Controller
                 'order_id' => null,
             ]);
 
-            return [
-                'cart' => $cartItem,
-                'stock' => $storeProduct->fresh()->quantity
-            ];
-        });
-
-        return ResponseHelper::jsonResponse([
-            'cart_item_id' => $result['cart']->id,
-            'remaining_stock' => $result['stock'],
-            'metrics' => [
-                'execution_time_ms' => round((microtime(true)-$startTime)*1000,2),
-                'memory_usage_kb' => round(memory_get_peak_usage(true)/1024,2),
-                'strategy' => 'Requirement#8 Full ACID Transaction',
-            ]
-        ], 'Cart item added with full ACID transaction', 200, true);
-
-    } catch (\Exception $e) {
-        return ResponseHelper::jsonResponse([
-            'metrics' => [
-                'execution_time_ms' => round((microtime(true)-$startTime)*1000,2),
-                'strategy' => 'Requirement#8 Full ACID Transaction',
-            ]
-        ], $e->getMessage(), 500, false);
+            return ResponseHelper::jsonResponse([
+                'cart_item_id' => $cartItem->id,
+                'remaining_stock' => Store_product::find($storeProduct->id)->quantity,
+                'metrics' => [
+                    'execution_time_ms' => round((microtime(true) - $startTime) * 1000, 2),
+                    'memory_usage_kb' => round(memory_get_peak_usage(true) / 1024, 2),
+                    'strategy' => 'Requirement#1 Data Integrity Only',
+                ]
+            ], 'Cart item added with atomic integrity protection', 200, true);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse(null, $e->getMessage(), 500, false);
+        }
     }
-}
+
+    public function addToCartSafe(CartStoreRequest $request)
+    {
+        $startTime = microtime(true);
+        $product = $request->validated();
+
+        try {
+            $result = DB::transaction(function () use ($product) {
+
+                $storeProduct = Store_product::where('product_id', $product['product_id'])
+                    ->where('store_id', $product['store_id'])
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                if ($storeProduct->quantity < $product['quantity']) {
+                    throw new \Exception('Insufficient stock');
+                }
+
+
+                $storeProduct->decrement('quantity', $product['quantity']);
+
+                $cartItem = Cart_item::create([
+                    'user_id' => auth()->id(),
+                    'store_product_id' => $storeProduct->id,
+                    'quantity' => $product['quantity'],
+                    'order_id' => null,
+                ]);
+
+                return [
+                    'cart' => $cartItem,
+                    'stock' => $storeProduct->fresh()->quantity
+                ];
+            });
+
+            return ResponseHelper::jsonResponse([
+                'cart_item_id' => $result['cart']->id,
+                'remaining_stock' => $result['stock'],
+                'metrics' => [
+                    'execution_time_ms' => round((microtime(true) - $startTime) * 1000, 2),
+                    'memory_usage_kb' => round(memory_get_peak_usage(true) / 1024, 2),
+                    'strategy' => 'Requirement#8 Full ACID Transaction',
+                ]
+            ], 'Cart item added with full ACID transaction', 200, true);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse([
+                'metrics' => [
+                    'execution_time_ms' => round((microtime(true) - $startTime) * 1000, 2),
+                    'strategy' => 'Requirement#8 Full ACID Transaction',
+                ]
+            ], $e->getMessage(), 500, false);
+        }
+    }
 
 
     public function getCartItems()
