@@ -125,51 +125,38 @@ class CartItemController extends Controller
     {
         $startTime = microtime(true);
         $product = $request->validated();
-
         try {
-            $result = DB::transaction(function () use ($product) {
-
-                $storeProduct = Store_product::where('product_id', $product['product_id'])
-                    ->where('store_id', $product['store_id'])
-                    ->lockForUpdate()
-                    ->firstOrFail();
-
-                if ($storeProduct->quantity < $product['quantity']) {
-                    throw new \Exception('Insufficient stock');
-                }
+            DB::beginTransaction();
+            $storeProduct = Store_product::where('product_id', $product['product_id'])
+                ->where('store_id', $product['store_id'])
+                ->firstOrFail();
 
 
-                $storeProduct->decrement('quantity', $product['quantity']);
+            $affected = DB::table('store_product')
+                ->where('id', $storeProduct->id)
+                ->lockForUpdate()
+                ->where('quantity', '>=', $product['quantity'])
+                ->decrement('quantity', $product['quantity']);
 
-                $cartItem = Cart_item::create([
-                    'user_id' => auth()->id(),
-                    'store_product_id' => $storeProduct->id,
-                    'quantity' => $product['quantity'],
-                    'order_id' => null,
-                ]);
+            if ($affected === 0) {
+                return ResponseHelper::jsonResponse([
+                    'metrics' => [
+                        'execution_time_ms' => round((microtime(true) - $startTime) * 1000, 2),
+                        'strategy' => 'Atomic Conditional Update',
+                    ]
+                ], 'Insufficient stock or concurrent conflict detected', 409, false);
+            }
 
-                return [
-                    'cart' => $cartItem,
-                    'stock' => $storeProduct->fresh()->quantity
-                ];
-            });
-
-            return ResponseHelper::jsonResponse([
-                'cart_item_id' => $result['cart']->id,
-                'remaining_stock' => $result['stock'],
-                'metrics' => [
-                    'execution_time_ms' => round((microtime(true) - $startTime) * 1000, 2),
-                    'memory_usage_kb' => round(memory_get_peak_usage(true) / 1024, 2),
-                    'strategy' => 'Requirement#8 Full ACID Transaction',
-                ]
-            ], 'Cart item added with full ACID transaction', 200, true);
+            $cartItem = Cart_item::create([
+                'user_id' => auth()->id(),
+                'store_product_id' => $storeProduct->id,
+                'quantity' => $product['quantity'],
+                'order_id' => null,
+            ]);
+            DB::commit();
         } catch (\Exception $e) {
-            return ResponseHelper::jsonResponse([
-                'metrics' => [
-                    'execution_time_ms' => round((microtime(true) - $startTime) * 1000, 2),
-                    'strategy' => 'Requirement#8 Full ACID Transaction',
-                ]
-            ], $e->getMessage(), 500, false);
+            DB::rollBack();
+            return ResponseHelper::jsonResponse(null, $e->getMessage(), 500, false);
         }
     }
 

@@ -15,16 +15,16 @@ export let options = {
     // vus: 20,
     // iterations: 20,
     stages: [
-        { duration: '10s', target: 20 },
-        { duration: '20s', target: 20 },
+        { duration: '10s', target: 50 },
+        { duration: '20s', target: 50 },
         { duration: '5s', target: 0 },
     ],
 };
 
-const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vcHJvZ3JhbWluZ19sYW5ndWFnZXMubG9jYWxob3N0L2FwaS9hdXRoL2xvZ2luIiwiaWF0IjoxNzc3NTU1Njk2LCJleHAiOjE3Nzc1NTkyOTYsIm5iZiI6MTc3NzU1NTY5NiwianRpIjoibllxT2NDSTRvZzR6ZmFFbSIsInN1YiI6IjIiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.CQCsaWY_61JEJxYJiTirHT13-2wQUBFkYIS03s3IW3c';
+const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vcHJvZ3JhbWluZ19sYW5ndWFnZXMubG9jYWxob3N0L2FwaS9hdXRoL2xvZ2luIiwiaWF0IjoxNzc3NzYxMzM1LCJleHAiOjE3Nzc3NjQ5MzUsIm5iZiI6MTc3Nzc2MTMzNSwianRpIjoiY2J6cDdiS05yNkczZmpqNyIsInN1YiI6IjIiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.hfT-VK_RHtT2nnFemdPHuS1n11o4vDTZKEIFmQ_XRb8';
 const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
 const payload = JSON.stringify({ product_id: 1, store_id: 1, quantity: 1 });
-const endpoint = 'http://programing_languages.localhost/api/auth/cart';
+const endpoint = 'http://programing_languages.localhost/api/auth/cart/integrity';
 // const endpoint = 'http://programing_languages.localhost/api/auth/cart';
 
 
