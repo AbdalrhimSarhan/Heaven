@@ -8,7 +8,7 @@ use App\Http\Resources\StoreResource;
 use App\Models\Category;
 use App\Models\Store;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 
 class StoreController extends Controller
 {
@@ -22,18 +22,20 @@ class StoreController extends Controller
 
     public function showProducts(Request $request, $categoryId, $storeId)
     {
-        $language = $request->get('lang', 'en');
+    $language = $request->get('lang', 'en');
+    
+    // مفتاح فريد للتخزين يعتمد على القسم والمتجر واللغة
+    $cacheKey = "products_cat_{$categoryId}_store_{$storeId}_{$language}";
 
+    $data = Cache::remember($cacheKey, 3600, function () use ($categoryId, $storeId, $language) {
         $category = Category::where('id', $categoryId)->firstOrFail();
-
         $store = $category->stores()->where('id', $storeId)->firstOrFail();
-
         $products = $store->products()->withPivot('price', 'quantity')->get();
 
-        return ResponseHelper::jsonResponse(
-            StoreResource::collection($products)->additional(['lang' => $language]),
-            __('message.success')
-        );
+        return StoreResource::collection($products)->additional(['lang' => $language]);
+    });
+
+    return ResponseHelper::jsonResponse($data, __('message.success'));
     }
 
 }
