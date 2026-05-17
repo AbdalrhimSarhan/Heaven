@@ -53,23 +53,22 @@ Route::group([
         return response()->json(__('message.user_not_found'), 404);
     });
 
-    // Route::get('/categories', [CategoryController::class, 'index']);
-    // Route::get('/categories/{category}/stores', [CategoryController::class, 'showStores']);
-    // Route::get('/categories/{categoryId}/stores/{storeId}/products', [StoreController::class, 'showProducts']);
-    // Route::get('/categories/{categoryId}/stores/{storeId}/products/{productId}', [ProductController::class, 'show']);
-
+    // ❌ Baseline - no concurrency protection (demonstrates race condition)
     Route::post('/cart', [CartItemController::class, 'addToCart']);
+
+    // ✅ Req #1 - Atomic conditional decrement (DB-level atomicity, no lock)
     Route::post('/cart/integrity', [CartItemController::class, 'addToCartBasicIntegrity']);
-    
+
+    // ✅ Req #7+8 - Pessimistic lock + ACID transaction (strong consistency, slow under extreme load)
     Route::post('/cart/safe', [CartItemController::class, 'addToCartSafe']);
+
+    // 🚀 Flash Sale - Redis atomic counter + async queue (fastest, eventual consistency)
+    Route::post('/cart/flash', [CartItemController::class, 'addToCartFlashSale']);
     
     Route::get('/show/cart', [CartItemController::class, 'getCartItems']);
     Route::put('/cart/{cartItemId}', [CartItemController::class, 'updateQuantitiyItem']);
     Route::delete('/cart/{cartItem}', [CartItemController::class, 'destroy']);
 
-
-
-    
     // ❌ Bad version - synchronous invoice + email, user waits
     Route::post('/order/sync', [OrderController::class, 'confirmOrderWithoutQueue']);
 

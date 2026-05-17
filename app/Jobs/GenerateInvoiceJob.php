@@ -1,34 +1,5 @@
 <?php
 
-// namespace App\Jobs;
-
-// use Illuminate\Bus\Queueable;
-// use Illuminate\Contracts\Queue\ShouldQueue;
-// use Illuminate\Foundation\Bus\Dispatchable;
-// use Illuminate\Queue\InteractsWithQueue;
-// use Illuminate\Queue\SerializesModels;
-
-// class GenerateInvoiceJob implements ShouldQueue
-// {
-//     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-//     /**
-//      * Create a new job instance.
-//      */
-//     public function __construct()
-//     {
-//         //
-//     }
-
-//     /**
-//      * Execute the job.
-//      */
-//     public function handle(): void
-//     {
-//         //
-//     }
-// }
-
 namespace App\Jobs;
 
 use App\Models\Order;
@@ -48,73 +19,39 @@ class GenerateInvoiceJob implements ShouldQueue
 
     public int $tries = 3;
 
-    public function __construct(
-        public int $orderId
-    ) {}
+    public function __construct(public int $orderId)
+    {
+        $this->afterCommit = true;
+    }
 
     public function handle(): void
     {
-        $startTime = microtime(true);
-
-        Log::info('🧾 [QUEUE] GenerateInvoiceJob START', [
-            'order_id' => $this->orderId,
-            'timestamp' => now()->toDateTimeString(),
-        ]);
-
         $order = Order::find($this->orderId);
 
         if (!$order) {
-            Log::warning('⚠️ [QUEUE] Order not found while generating invoice', [
-                'order_id' => $this->orderId,
-            ]);
             return;
         }
 
-        /*
-         |------------------------------------------------------------
-         | Generate invoice in background
-         |------------------------------------------------------------
-         | This simulates a heavy task that the user should not wait for.
-         */
         $invoice = Invoice::create([
-            'order_id' => $order->id,
+            'order_id'       => $order->id,
             'invoice_number' => 'INV-' . now()->format('Ymd') . '-' . $order->id,
-            'total_price' => $order->total_price,
-            'status' => 'generated',
-            'generated_at' => now(),
+            'total_price'    => $order->total_price,
+            'status'         => 'generated',
+            'generated_at'   => now(),
         ]);
 
-        // Simulate heavy invoice generation.
         sleep(3);
 
-        /*
-         |------------------------------------------------------------
-         | Send order confirmation email in background
-         |------------------------------------------------------------
-         | We use a demo email because the users table has no email column.
-         | With MAIL_MAILER=log, the email is written to laravel.log.
-         */
-        Mail::to('customer@example.com')->send(
-            new OrderConfirmedMail($order, $invoice)
-        );
+        Mail::to('customer@example.com')->send(new OrderConfirmedMail($order, $invoice));
 
-        // Simulate slow email sending.
         sleep(3);
-
-        $executionTime = (microtime(true) - $startTime) * 1000;
-
-        Log::info('✅ [QUEUE] GenerateInvoiceJob DONE', [
-            'order_id' => $order->id,
-            'invoice_id' => $invoice->id,
-            'execution_time_ms' => round($executionTime, 2),
-        ]);
     }
 
     public function failed(\Throwable $exception): void
     {
-        Log::error('❌ [QUEUE] GenerateInvoiceJob FAILED', [
+        Log::error('GenerateInvoiceJob failed', [
             'order_id' => $this->orderId,
-            'error' => $exception->getMessage(),
+            'error'    => $exception->getMessage(),
         ]);
     }
 }

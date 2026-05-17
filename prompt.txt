@@ -1,0 +1,34 @@
+أنا أعمل على مشروع Laravel للبرمجة المتوازية (2026).
+الكود موجود على Git وسحبته على Ubuntu.
+
+## ما تم بناؤه (Windows):
+- AOP Architecture: Service + Repository + Observer + Middleware
+- 4 استراتيجيات للـ cart: /cart (basic) | /cart/integrity (atomic) | /cart/safe (pessimistic lock) | /cart/flash (Redis + queue)
+- Queue jobs: GenerateInvoiceJob + CreateCartItemJob + ProcessDailySalesReportJob
+- Redis caching: CacheService مُحقَّن في StoreController + ProductController
+- Docker setup: docker-compose.yml + Dockerfile + docker/nginx/nginx.conf
+- k6 stress test: cart-stress-test.js (100 VUs)
+
+## البنية:
+app/Repositories/StoreProductRepository.php
+app/Services/CartService.php | OrderService.php | CacheService.php
+app/Observers/CartItemObserver.php | OrderObserver.php
+app/Http/Middleware/PerformanceMonitorMiddleware.php
+app/Jobs/GenerateInvoiceJob.php | CreateCartItemJob.php
+docker-compose.yml | Dockerfile | docker/nginx/nginx.conf
+
+## المطلوب على Ubuntu:
+1. تشغيل المشروع عبر Docker (app1 + app2 + nginx + redis + mysql)
+2. التحقق من عمل Octane/Swoole داخل الحاويات
+3. التحقق من عمل Redis (caching + queue)
+4. تشغيل Queue workers
+5. تشغيل k6 على جميع الـ endpoints للمقارنة:
+   - /cart/safe (pessimistic lock) → يجب أن يكون أبطأ
+   - /cart/flash (Redis) → يجب أن يكون أسرع
+6. رصد nginx logs لإثبات توزيع الأحمال على app1 + app2
+7. توثيق النتائج (screenshots) لكل endpoint قبل/بعد للتقرير
+
+## الـ .env يحتاج تعديل لـ Docker:
+DB_HOST=mysql | REDIS_HOST=redis | OCTANE_SERVER=swoole
+
+ساعدني في تشغيل المشروع خطوة بخطوة والتحقق من كل متطلب.

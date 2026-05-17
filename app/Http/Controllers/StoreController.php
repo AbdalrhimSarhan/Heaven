@@ -3,39 +3,37 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ResponseHelper;
-use App\Http\Resources\ProductResource;
 use App\Http\Resources\StoreResource;
 use App\Models\Category;
-use App\Models\Store;
+use App\Services\CacheService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
+/**
+ * CacheService is injected — this controller never calls Cache:: directly.
+ * AOP Cache Aspect: showProducts() is a Join Point where the Cache Advice applies.
+ */
 class StoreController extends Controller
 {
+    public function __construct(private CacheService $cache) {}
+
     /**
-     * Display a listing of the resource.
+     * Requirement #6 - Distributed Caching.
+     * Products are cached in Redis for 1 hour per (category, store, language) combination.
+     * DB is only queried on cache miss.
      */
-    public function index()
+    public function showProducts(Request $request, string $categoryId, string $storeId)
     {
-        Store::where('id');
+        $language = $request->get('lang', 'en');
+        $cacheKey = $this->cache->productListKey((int) $categoryId, (int) $storeId, $language);
+
+        $data = $this->cache->remember($cacheKey, 3600, function () use ($categoryId, $storeId, $language) {
+            $category = Category::where('id', $categoryId)->firstOrFail();
+            $store    = $category->stores()->where('id', $storeId)->firstOrFail();
+            $products = $store->products()->withPivot('price', 'quantity')->get();
+
+            return StoreResource::collection($products)->additional(['lang' => $language]);
+        });
+
+        return ResponseHelper::jsonResponse($data, __('message.success'));
     }
-
-    public function showProducts(Request $request, $categoryId, $storeId)
-    {
-    $language = $request->get('lang', 'en');
-    
-    // مفتاح فريد للتخزين يعتمد على القسم والمتجر واللغة
-    $cacheKey = "products_cat_{$categoryId}_store_{$storeId}_{$language}";
-
-    $data = Cache::remember($cacheKey, 3600, function () use ($categoryId, $storeId, $language) {
-        $category = Category::where('id', $categoryId)->firstOrFail();
-        $store = $category->stores()->where('id', $storeId)->firstOrFail();
-        $products = $store->products()->withPivot('price', 'quantity')->get();
-
-        return StoreResource::collection($products)->additional(['lang' => $language]);
-    });
-
-    return ResponseHelper::jsonResponse($data, __('message.success'));
-    }
-
 }

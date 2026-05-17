@@ -40,7 +40,10 @@ class Kernel extends HttpKernel
 
         'api' => [
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-            \Illuminate\Routing\Middleware\ThrottleRequests::class . ':1000,1',
+            // Requirement #2: Resource Management - named rate limiter (60 req/min per user/IP)
+            \Illuminate\Routing\Middleware\ThrottleRequests::class . ':api',
+            // AOP: Performance Monitoring Aspect - applied to every API request
+            \App\Http\Middleware\PerformanceMonitorMiddleware::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];
