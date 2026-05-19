@@ -27,6 +27,8 @@ services:
       QUEUE_CONNECTION: redis
       SESSION_DRIVER: redis
       OCTANE_SERVER: swoole
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_TTL: "525600"
     depends_on:
       mysql:
         condition: service_healthy
@@ -56,6 +58,8 @@ services:
       QUEUE_CONNECTION: redis
       SESSION_DRIVER: redis
       OCTANE_SERVER: swoole
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_TTL: "525600"
     depends_on:
       mysql:
         condition: service_healthy
@@ -111,8 +115,6 @@ services:
     image: redis:7-alpine
     container_name: laravel_redis
     restart: unless-stopped
-    ports:
-      - "6379:6379"
     networks:
       - app_network
 
@@ -124,8 +126,7 @@ services:
     environment:
       MYSQL_DATABASE: ${DB_DATABASE}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
+      # MYSQL_USER/MYSQL_PASSWORD removed: cannot create a user named 'root' via MYSQL_USER
     ports:
       - "3306:3306"
     volumes:

@@ -27,21 +27,34 @@ export let options = {
     },
 };
 
-const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vcHJvZ3JhbWluZ19sYW5ndWFnZXMubG9jYWxob3N0L2FwaS9hdXRoL2xvZ2luIiwiaWF0IjoxNzc3NzYxMzM1LCJleHAiOjE3Nzc3NjQ5MzUsIm5iZiI6MTc3Nzc2MTMzNSwianRpIjoiY2J6cDdiS05yNkczZmpqNyIsInN1YiI6IjIiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.hfT-VK_RHtT2nnFemdPHuS1n11o4vDTZKEIFmQ_XRb8';
-const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+const tokens = [
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0L2FwaS9hdXRoL2xvZ2luIiwiaWF0IjoxNzc5MjA2Mzg5LCJleHAiOjE4MTA3NDIzODksIm5iZiI6MTc3OTIwNjM4OSwianRpIjoiaWdabUJUOXhBeThRYjVMUyIsInN1YiI6IjIiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.N9TwzovgRrz2sUpDHMVzBfoV5auLKmu_RkThcYJ-FZg',   // mobile: 0100123456
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0L2FwaS9hdXRoL2xvZ2luIiwiaWF0IjoxNzc5MjA2Mzg5LCJleHAiOjE4MTA3NDIzODksIm5iZiI6MTc3OTIwNjM4OSwianRpIjoiUlZFRDRNVmRtT2ZBZXY3TSIsInN1YiI6IjMiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.1qYSE9WwYnvacYzmnYDrPtFgrgrXmcRueIzqbUXuHas',   // mobile: 0100234567
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0L2FwaS9hdXRoL2xvZ2luIiwiaWF0IjoxNzc5MjA2MzkwLCJleHAiOjE4MTA3NDIzOTAsIm5iZiI6MTc3OTIwNjM5MCwianRpIjoiYkdCaWk4M1I5NGhNSnV0WiIsInN1YiI6IjQiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.Bd3jGusqgCe--kfUAVqgcfn6odwV8DYSGFxk0u7QapQ',   // mobile: 0100345678
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0L2FwaS9hdXRoL2xvZ2luIiwiaWF0IjoxNzc5MjA2MzkwLCJleHAiOjE4MTA3NDIzOTAsIm5iZiI6MTc3OTIwNjM5MCwianRpIjoiZWtGTmJCRVJKR21FMm9ndSIsInN1YiI6IjI1IiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.J5hSlCw7XHN1w8_CL284dlBSzq-BQs1C9WeyyU-z01A',   // mobile: 0900000005
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0L2FwaS9hdXRoL2xvZ2luIiwiaWF0IjoxNzc5MjA2MzkwLCJleHAiOjE4MTA3NDIzOTAsIm5iZiI6MTc3OTIwNjM5MCwianRpIjoidTR1dDBreGlhMk9YeThCNiIsInN1YiI6IjI2IiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.wN3xc61bwCrrJln7O9WyiRd2VSRkAsaNLBCRdMTsmzo',   // mobile: 0900000006
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0L2FwaS9hdXRoL2xvZ2luIiwiaWF0IjoxNzc5MjA2MzkwLCJleHAiOjE4MTA3NDIzOTAsIm5iZiI6MTc3OTIwNjM5MCwianRpIjoibU9POFE3VWM4RVZiVUpMcSIsInN1YiI6IjI3IiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.3dM1jDXbFMMMWQjuMjFV51F50x9W1bWv45jiDlrovLc',   // mobile: 0900000007
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0L2FwaS9hdXRoL2xvZ2luIiwiaWF0IjoxNzc5MjA2MzkwLCJleHAiOjE4MTA3NDIzOTAsIm5iZiI6MTc3OTIwNjM5MCwianRpIjoiNzY5ZmtqTFBqNlJjcW9CQyIsInN1YiI6IjI4IiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.ml-ku2sfwWSE8CydPtI6AcyGDjLIG7xu2SQLbGQJC5A',   // mobile: 0900000008
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0L2FwaS9hdXRoL2xvZ2luIiwiaWF0IjoxNzc5MjA2MzkwLCJleHAiOjE4MTA3NDIzOTAsIm5iZiI6MTc3OTIwNjM5MCwianRpIjoiWXo1VmtXWVI2bVNiN2FhNyIsInN1YiI6IjI5IiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.j1m6qrLVVFmcK5Dgi5-wfzMLfnSxDWh6Rlmgwc0-gIU',   // mobile: 0900000009
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0L2FwaS9hdXRoL2xvZ2luIiwiaWF0IjoxNzc5MjA2NDE2LCJleHAiOjE4MTA3NDI0MTYsIm5iZiI6MTc3OTIwNjQxNiwianRpIjoiMWpXZmhYVkRzc0tXdXNzNiIsInN1YiI6IjMxIiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.ZmPrYFRP8BaoTk7YUNchZ4-rdYaexNlmPbbFhKY_V7g',   // mobile: 0900000011
+];
+
 const payload = JSON.stringify({ product_id: 1, store_id: 1, quantity: 1 });
 
-// Switch endpoint to compare strategies:
-// ❌ Baseline (race condition):  /cart
-// ✅ Req #1 (atomic DB):         /cart/integrity
-// ✅ Req #7+8 (pessimistic lock): /cart/safe        ← slowest under load
-// 🚀 Flash Sale (Redis):          /cart/flash        ← fastest under load
-const endpoint = 'http://programing_languages.localhost/api/auth/cart/flash';
-// const endpoint = 'http://programing_languages.localhost/api/auth/cart/integrity';
-// const endpoint = 'http://programing_languages.localhost/api/auth/cart/safe';
-// const endpoint = 'http://programing_languages.localhost/api/auth/cart';
+// Switch endpoint via env: k6 run -e ENDPOINT=flash cart-stress-test.js
+// Strategies: baseline | integrity | safe | flash
+const strategies = {
+    baseline:  'http://localhost/api/auth/cart',
+    integrity: 'http://localhost/api/auth/cart/integrity',
+    safe:      'http://localhost/api/auth/cart/safe',
+    flash:     'http://localhost/api/auth/cart/flash',
+};
+const endpoint = strategies[__ENV.ENDPOINT] || strategies.flash;
 
 export default function () {
+    const token = tokens[(__VU - 1) % tokens.length];
+    const headers = { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': `Bearer ${token}` };
+
     let res = http.post(endpoint, payload, { headers });
 
     ResponseTime.add(res.timings.duration);
