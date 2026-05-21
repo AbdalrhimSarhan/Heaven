@@ -47,6 +47,14 @@ class CartService
             throw new \RuntimeException('Insufficient stock or concurrent conflict detected.', 409);
         }
 
+        $remaining = $this->stockRepo->getQuantity($storeProduct->id);
+
+        // Write-through: keep Redis in sync so /flash reads the same stock as DB
+        \Illuminate\Support\Facades\Redis::set(
+            $this->stockRepo->stockRedisKey($storeProduct->id),
+            $remaining
+        );
+
         $cartItem = Cart_item::create([
             'user_id'          => $userId,
             'store_product_id' => $storeProduct->id,
@@ -56,7 +64,7 @@ class CartService
 
         return [
             'cart_item'       => $cartItem,
-            'remaining_stock' => $this->stockRepo->getQuantity($storeProduct->id),
+            'remaining_stock' => $remaining,
         ];
     }
 

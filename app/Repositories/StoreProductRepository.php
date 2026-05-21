@@ -54,7 +54,7 @@ class StoreProductRepository
             $quantity,
             'NX',
             'EX',
-            86400,
+            3600,
         ]);
 
         return $result !== null;
