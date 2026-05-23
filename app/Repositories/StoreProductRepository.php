@@ -15,6 +15,14 @@ class StoreProductRepository
             ->firstOrFail();
     }
 
+    public function findByProductAndStoreWithLock(int $productId, int $storeId): Store_product
+    {
+        return Store_product::where('product_id', $productId)
+            ->where('store_id', $storeId)
+            ->lockForUpdate()
+            ->firstOrFail();
+    }
+
     public function decrementStockAtomic(int $id, int $qty): int
     {
         return DB::table('store_product')

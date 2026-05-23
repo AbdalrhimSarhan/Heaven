@@ -10,9 +10,12 @@ use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Models\Store;
 use App\Models\Store_product;
+use App\Services\AdminProductService;
 
 class AdminProductController extends Controller
 {
+    public function __construct(private AdminProductService $adminProductService) {}
+
     public function createProduct(CreateProductRequest $request, $storeId)
     {
         // Validate the store exists
@@ -58,34 +61,15 @@ class AdminProductController extends Controller
     }
     public function updateProduct(UpdateProductRequest $request, $store_id, $product_id)
     {
-        // Validate store and product existence
-        $store = Store::findOrFail($store_id);
-        $product = Product::findOrFail($product_id);
+        [
+            'product'       => $product,
+            'store_product' => $storeProduct,
+        ] = $this->adminProductService->updateProduct(
+            (int) $store_id,
+            (int) $product_id,
+            $request->validated()
+        );
 
-        // Get validated data from the request
-        $validated = $request->validated();
-
-        // Update product attributes
-        $product->update([
-            'name_en' => $validated['name_en'] ?? $product->name_en,
-            'name_ar' => $validated['name_ar'] ?? $product->name_ar,
-            'description_en' => $validated['description_en'] ?? $product->description_en,
-            'description_ar' => $validated['description_ar'] ?? $product->description_ar,
-            'product_image' => $validated['product_image'] ?? $product->product_image,
-        ]);
-
-        // Find the existing store product pivot row
-        $storeProduct = $store->products()->where('products.id', $product_id)->first()->pivot;
-
-        // Update store product attributes (price and quantity)
-        if (isset($validated['price']) || isset($validated['quantity'])) {
-            $storeProduct->update([
-                'price' => $validated['price'] ?? $storeProduct->price,
-                'quantity' => $validated['quantity'] ?? $storeProduct->quantity,
-            ]);
-        }
-
-        // Return updated product resource with storeProduct data
         return ResponseHelper::jsonResponse(
             new ProductResource($product, $storeProduct),
             __('message.admin_product.updated'),

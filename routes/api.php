@@ -64,6 +64,9 @@ Route::group([
 
     // 🚀 Flash Sale - Redis atomic counter + async queue (fastest, eventual consistency)
     Route::post('/cart/flash', [CartItemController::class, 'addToCartFlashSale']);
+
+    Route::post('/stores/{store_id}/products/{product_id}', [AdminProductController::class, 'updateProduct']);
+
     
     Route::get('/show/cart', [CartItemController::class, 'getCartItems']);
     Route::put('/cart/{cartItemId}', [CartItemController::class, 'updateQuantitiyItem']);
@@ -111,7 +114,6 @@ Route::middleware(['auth:api', 'admin','setLang'])->group(function () {
     Route::post('/createCategory',[CategoryController::class,'createNewCategory']);
 
     Route::post('/stores/{storeId}/', [AdminProductController::class, 'createProduct']);
-    Route::post('/stores/{store_id}/products/{product_id}', [AdminProductController::class, 'updateProduct']);
     Route::get('/stores/{storeId}/products', [AdminProductController::class, 'getStoreProducts']);
     Route::get('/stores/{storeId}/products/{productId}', [AdminProductController::class, 'showProductDetails']);
     Route::delete('/stores/{storeId}/products/{productId}', [AdminProductController::class, 'deleteProduct']);

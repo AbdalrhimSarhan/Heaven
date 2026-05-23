@@ -11,6 +11,13 @@ services:
     build: .
     container_name: laravel_app1
     restart: unless-stopped
+    # Override CMD to allow changing --workers without rebuild
+    # For k6 load test: change OCTANE_WORKERS to 8 or 12, then restart
+    command: php artisan octane:start --server=swoole --host=0.0.0.0 --port=8000 --workers=${OCTANE_WORKERS:-4}
+    volumes:
+      - .:/var/www/html
+      # Preserve vendor built during image build (never overwrite with local vendor)
+      - app1_vendor:/var/www/html/vendor
     environment:
       APP_ENV: production
       APP_KEY: ${APP_KEY}
@@ -42,6 +49,10 @@ services:
     build: .
     container_name: laravel_app2
     restart: unless-stopped
+    command: php artisan octane:start --server=swoole --host=0.0.0.0 --port=8000 --workers=${OCTANE_WORKERS:-4}
+    volumes:
+      - .:/var/www/html
+      - app2_vendor:/var/www/html/vendor
     environment:
       APP_ENV: production
       APP_KEY: ${APP_KEY}
@@ -74,6 +85,9 @@ services:
     container_name: laravel_queue_worker
     restart: unless-stopped
     command: php artisan queue:work redis --tries=3 --timeout=120 --sleep=1
+    volumes:
+      - .:/var/www/html
+      - queue_vendor:/var/www/html/vendor
     environment:
       APP_ENV: production
       APP_KEY: ${APP_KEY}
@@ -92,6 +106,24 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+    networks:
+      - app_network
+
+  # Dev-only: watches PHP files and auto-reloads Octane workers on change
+  # Usage: docker compose --profile dev up -d
+  watcher:
+    image: alpine:3.19
+    container_name: laravel_watcher
+    profiles: [dev]
+    restart: unless-stopped
+    volumes:
+      - .:/var/www/html:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./docker/watcher/watch.sh:/watch.sh:ro
+    command: sh /watch.sh
+    depends_on:
+      - app1
+      - app2
     networks:
       - app_network
 
@@ -145,3 +177,6 @@ networks:
 
 volumes:
   mysql_data:
+  app1_vendor:
+  app2_vendor:
+  queue_vendor:

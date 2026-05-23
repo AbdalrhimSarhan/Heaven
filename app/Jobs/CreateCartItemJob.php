@@ -8,6 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
@@ -16,11 +17,15 @@ use Illuminate\Support\Facades\Redis;
  *
  * Flow:
  *   1. CartService::addFlashSale() reserves stock in Redis (atomic, <1ms)
- *   2. This job is dispatched immediately → user gets 200 OK
- *   3. This job writes the cart item to DB in the background
+ *   2. User gets 200 OK immediately — no DB wait
+ *   3. This job runs in background: creates cart_item AND decrements store_product.quantity
  *
- * On permanent failure (all retries exhausted):
- *   failed() restores the Redis stock so the slot is released back to the pool.
+ * Why DB::table (not Eloquent) for the decrement:
+ *   Eloquent update() fires StoreProductObserver → Redis::set(key, newQty)
+ *   which would overwrite the correct Redis counter mid-flash-sale.
+ *   Query builder bypasses Observer, keeping Redis untouched (already correct).
+ *
+ * On permanent failure: failed() restores BOTH Redis and DB stock.
  */
 class CreateCartItemJob implements ShouldQueue
 {
@@ -36,29 +41,36 @@ class CreateCartItemJob implements ShouldQueue
 
     public function handle(): void
     {
-        $cartItem = Cart_item::create([
-            'user_id'          => $this->userId,
-            'store_product_id' => $this->storeProductId,
-            'quantity'         => $this->quantity,
-            'order_id'         => null,
-        ]);
+        DB::transaction(function () {
 
-        Log::info('[FLASH_SALE] Cart item written to DB', [
-            'cart_item_id'     => $cartItem->id,
-            'user_id'          => $this->userId,
-            'store_product_id' => $this->storeProductId,
-            'quantity'         => $this->quantity,
-        ]);
+             DB::table('store_product')
+                ->where('id', $this->storeProductId)
+                ->decrement('quantity', $this->quantity);
+                
+            $cartItem = Cart_item::create([
+                'user_id'          => $this->userId,
+                'store_product_id' => $this->storeProductId,
+                'quantity'         => $this->quantity,
+                'order_id'         => null,
+            ]);
+
+
+            Log::info('[FLASH_SALE] Cart item written and stock decremented', [
+                'cart_item_id'     => $cartItem->id,
+                'user_id'          => $this->userId,
+                'store_product_id' => $this->storeProductId,
+                'quantity'         => $this->quantity,
+            ]);
+        });
     }
 
     /**
      * Called only after ALL retries are exhausted.
-     * Restores the Redis stock so the slot is returned to the pool.
-     * Without this, a failed job would silently "eat" stock quota.
+     * Restores BOTH Redis stock and DB quantity so the slot is fully released.
      */
     public function failed(\Throwable $exception): void
     {
-        Log::error('[FLASH_SALE] CreateCartItemJob failed — restoring Redis stock', [
+        Log::error('[FLASH_SALE] CreateCartItemJob failed — restoring Redis and DB stock', [
             'user_id'          => $this->userId,
             'store_product_id' => $this->storeProductId,
             'quantity'         => $this->quantity,
@@ -66,5 +78,9 @@ class CreateCartItemJob implements ShouldQueue
         ]);
 
         Redis::incrby("stock:store_product:{$this->storeProductId}", $this->quantity);
+
+        DB::table('store_product')
+            ->where('id', $this->storeProductId)
+            ->increment('quantity', $this->quantity);
     }
 }

@@ -15,8 +15,8 @@ let ResponseTime = new Trend('response_time_ms');
 // Requirement #9 - Stress Testing: 100 concurrent users
 export let options = {
     stages: [
-        { duration: '10s', target: 100 },  // ramp up to 100 VUs
-        { duration: '30s', target: 100 },  // hold at 100 VUs for 30 seconds
+        { duration: '10s', target: 2000 },  // ramp up to 100 VUs
+        { duration: '30s', target: 2000 },  // hold at 100 VUs for 30 seconds
         { duration: '5s',  target: 0   },  // ramp down
     ],
     thresholds: {
