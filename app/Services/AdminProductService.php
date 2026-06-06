@@ -11,23 +11,7 @@ class AdminProductService
 {
     public function __construct(private StoreProductRepository $stockRepo) {}
 
-    /**
-     * Update product metadata and/or store stock with a Pessimistic Write Lock.
-     *
-     * Lock choice — lockForUpdate (X lock):
-     *   Admin replaces the ABSOLUTE stock quantity, not a delta.
-     *   During the update window, any concurrent DB decrement
-     *   (cart/safe uses lockForUpdate, cart/integrity uses WHERE quantity>=qty UPDATE)
-     *   must wait, otherwise the decrement would land on a value that is about to be
-     *   replaced, and the subsequent Redis sync would reflect the wrong number.
-     *   Flash-sale requests bypass DB entirely (Redis Lua), so they are not blocked.
-     *
-     * AOP layer — StoreProductObserver:
-     *   When $storeProduct->update() fires the Eloquent `updated` event,
-     *   the Observer intercepts it and calls Redis::set(key, newQty).
-     *   The Service never touches Redis directly; cache sync is a cross-cutting
-     *   concern handled transparently by the Observer.
-     */
+   
     public function updateProduct(int $storeId, int $productId, array $validated): array
     {
         $store = Store::findOrFail($storeId);

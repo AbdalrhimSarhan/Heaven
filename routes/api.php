@@ -65,6 +65,7 @@ Route::group([
     // 🚀 Flash Sale - Redis atomic counter + async queue (fastest, eventual consistency)
     Route::post('/cart/flash', [CartItemController::class, 'addToCartFlashSale']);
 
+    // Req 7 & 8 
     Route::post('/stores/{store_id}/products/{product_id}', [AdminProductController::class, 'updateProduct']);
 
     
